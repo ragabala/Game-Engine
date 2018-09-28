@@ -30,4 +30,16 @@ class Square extends Shape {
 		sketcher.rect(x, y, side_a, side_b);
 	}
 
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

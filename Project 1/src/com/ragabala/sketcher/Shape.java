@@ -13,6 +13,8 @@ abstract class Shape {
 
 	public abstract void step(int x_dir, int y_dir);
 	public abstract void step();
+	public abstract void stop();
+	public abstract void reset();
 	
 	public abstract void render();
 	

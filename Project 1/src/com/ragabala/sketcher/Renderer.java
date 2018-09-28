@@ -4,7 +4,7 @@ import processing.core.PApplet;
 public class Renderer extends PApplet {
 
 	Shape[] shapes;
-	int stepRight,stepLeft;
+	int stepRight,stepLeft,stepUp;
 
 	@Override
 	public void settings() {
@@ -25,11 +25,13 @@ public class Renderer extends PApplet {
 		
 		stepRight=1;
 		stepLeft=-1;
+		stepUp=-1;
 	}
 
 	@Override
 	public void draw(){
 		background(100);
+		setCommandManual();
 		for (Shape shape : shapes) {
 			shape.step();
 			shape.render();
@@ -42,15 +44,24 @@ public class Renderer extends PApplet {
 		
 	}
 
+	public void setCommandManual() {
+		fill(255,255,0);
+		textSize(30);
+		text("Left (->) | Right (<-) | Jump (Space)", width/2 - 200, height /2 + 200);
+	}
+	
 	public void detechCollision(Shape shape1, Shape shape2) {		
 		float x_dist = Math.abs(shape1.x - shape2.x);
 		float y_dist = Math.abs(shape1.y - shape2.y);
 		
 		if(x_dist + 0.5 < (shape1.side_a + shape2.side_a)/2 &&
 		   y_dist + 0.5 < (shape1.side_b + shape2.side_b)/2 ){
+
 			textSize(30);
 			fill(255, 0, 0);
-			text("OUT!!", 50, 50);
+			text("PRESS ENTER to RESTART!!", width/2 - 200, height /2 - 200);
+			//stop execution     
+			shape1.stop();shape2.stop();
 		}
 		
 		
@@ -59,6 +70,7 @@ public class Renderer extends PApplet {
 	@Override
 	public void keyPressed() {
 		for (Shape shape : shapes) {
+			
 			switch (keyCode) {
 			case RIGHT:
 				shape.step(stepRight, 0);
@@ -66,8 +78,11 @@ public class Renderer extends PApplet {
 			case LEFT:
 				shape.step(stepLeft, 0);
 				break;	
+			case 10:
+				shape.reset();
+				break;
 			case 32:
-				shape.step(0,1);
+				shape.step(0,stepUp);
 			default:
 				break;
 			}
