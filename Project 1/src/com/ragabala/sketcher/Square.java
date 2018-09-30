@@ -2,7 +2,7 @@ package com.ragabala.sketcher;
 
 import processing.core.PApplet;
 
-class Square extends Shape {
+public class Square extends Shape {
 	public Square(PApplet sketcher, int side) {
 		// TODO Auto-generated constructor stub
 		this.sketcher = sketcher;

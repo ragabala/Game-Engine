@@ -1,6 +1,8 @@
 package com.ragabala.sketcher;
 
-class Color {
+import java.io.Serializable;
+
+public class Color implements Serializable{
 	public int r, g, b;
 
 	public Color(int r, int g, int b) {

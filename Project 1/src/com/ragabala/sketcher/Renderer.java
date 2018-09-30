@@ -8,13 +8,15 @@ public class Renderer extends PApplet {
 
 	@Override
 	public void settings() {
-		size(1024, 1024);
+		fullScreen();
 	}
 
 	@Override
 	public void setup() {
 		background(100);
 		shapes = new Shape[2];
+		// Design Logic : Shape[0] is the player - Dynamic
+		// Shape[1..n] : Obstacles to the player
 		shapes[0] = new Square(this, 80);
 		shapes[0].init_color(new Color(0, 255, 255));
 		shapes[0].render();

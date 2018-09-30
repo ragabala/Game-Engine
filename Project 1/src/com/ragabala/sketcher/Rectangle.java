@@ -2,7 +2,7 @@ package com.ragabala.sketcher;
 
 import processing.core.PApplet;
 
-class Rectangle extends Shape {
+public class Rectangle extends Shape {
 	public Rectangle(PApplet sketcher, int side_a, int side_b) {
 		// TODO Auto-generated constructor stub
 		this.sketcher = sketcher;
@@ -14,6 +14,17 @@ class Rectangle extends Shape {
 		y = (int) sketcher.height/2;
 		jump_limit = (int) sketcher.height/2 - 200;
 	}
+	
+	// this is for the client server architecture
+	public Rectangle(PApplet sketcher, int side_a, int side_b, int x, int y) {
+		// TODO Auto-generated constructor stub
+		this.sketcher = sketcher;
+		this.side_a = side_a;
+		this.side_b = side_b;
+		this.x = x;
+		this.y = y;
+	}
+	
 
 	public void init_color(Color c) {
 		this.color = c;
@@ -58,6 +69,7 @@ class Rectangle extends Shape {
 		x = 10;
 		y = (int) sketcher.height/2;
 	}
+
 
 }
 

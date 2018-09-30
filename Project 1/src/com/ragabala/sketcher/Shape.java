@@ -1,10 +1,12 @@
 package com.ragabala.sketcher;
 
+import java.io.Serializable;
+
 import processing.core.PApplet;
 
-abstract class Shape {
-	PApplet sketcher;
-	Color color;
+public abstract class Shape implements Serializable{
+	transient PApplet sketcher;
+	transient Color color;
 	int x_speed, y_speed;
 	int x, y; // centers of the objects
 	int side_a, side_b;
@@ -14,11 +16,13 @@ abstract class Shape {
 	public abstract void step(int x_dir, int y_dir);
 	public abstract void step();
 	public abstract void stop();
-	public abstract void reset();
-	
+	public abstract void reset();	
 	public abstract void render();
-	
 	public abstract void init_color(Color c);
+	
+	public void setSketcher(PApplet sketcher) {
+		this.sketcher = sketcher;
+	}
 
 	public void wrap() {
 		if (x > sketcher.width)
