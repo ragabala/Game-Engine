@@ -60,3 +60,4 @@ class Rectangle extends Shape {
 	}
 
 }
+
