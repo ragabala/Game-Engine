@@ -6,10 +6,7 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import com.ragabala.sketcher.Color;
 import com.ragabala.sketcher.Shape;
-
 import processing.core.PApplet;
 
 /*
@@ -37,7 +34,6 @@ class ClientRequestHandler implements Runnable {
 			while (true) {
 				Shape readShape = (Shape) inputStream.readObject();
 				readShape.setSketcher(sketcher);
-				readShape.init_color(new Color(255, 0, 0));
 				// this adds a new shape for the server to render
 				inputShapeList.add(readShape);
 			}
@@ -72,7 +68,7 @@ class ClientResponseHandler implements Runnable {
 			while (true) {
 				// send a counter to the client every two seconds
 				outputStream.writeInt(iter++);
-				Thread.sleep(1000000);
+				Thread.sleep(2000);
 			}
 		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block

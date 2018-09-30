@@ -6,7 +6,7 @@ import processing.core.PApplet;
 
 public abstract class Shape implements Serializable{
 	transient PApplet sketcher;
-	transient Color color;
+	Color color;
 	int x_speed, y_speed;
 	int x, y; // centers of the objects
 	int side_a, side_b;
