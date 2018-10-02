@@ -1,4 +1,4 @@
-package com.ragabala.networks;
+package com.hw1.networks;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -6,11 +6,14 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.CopyOnWriteArrayList;
-import com.ragabala.sketcher.Shape;
+
+import com.hw1.sketcher.Shape;
+
 import processing.core.PApplet;
 
 /*
- * This is run as a thread for handling reads from client and writing it into the 
+ * This is run as a thread for handling reads the Game objects from client 
+ * and add those Game Objects into a Thread Safe Array list. 
  * 
  * */
 class ClientRequestHandler implements Runnable {
@@ -33,6 +36,7 @@ class ClientRequestHandler implements Runnable {
 			ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
 			while (true) {
 				Shape readShape = (Shape) inputStream.readObject();
+				System.out.println("Got shape from client ["+socket.getPort()+"]");
 				readShape.setSketcher(sketcher);
 				// this adds a new shape for the server to render
 				inputShapeList.add(readShape);
@@ -104,7 +108,7 @@ class ClientConnectionHandler implements Runnable {
 			System.out.println("server listening at "+sSocket.getLocalPort());
 			while (true) {
 				Socket socket = sSocket.accept();
-				System.out.println("Client Connected to : " + socket.getPort());
+				System.out.println("Client with port number: " + socket.getPort()+" is connected");
 				// start a new thread for handling requests from the client
 				ClientRequestHandler requestHandler = new ClientRequestHandler(socket, inputShapeList, sketcher);
 				new Thread(requestHandler).start();
@@ -121,6 +125,13 @@ class ClientConnectionHandler implements Runnable {
 
 }
 
+
+/**
+ * @author ragbalak
+ * This is the main thread that takes care of the game loop.
+ * The Game loop access the game objects that are received from the client
+ * and renders then on the screen.
+ */
 public class AsynchronousServer extends PApplet {
 
 	CopyOnWriteArrayList<Shape> inputShapeList;

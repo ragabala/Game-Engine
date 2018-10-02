@@ -1,20 +1,24 @@
-package com.ragabala.sketcher;
+package com.hw1.sketcher;
 
 import processing.core.PApplet;
 
+/**
+ * @author ragbalak
+ * The square class is used for implementing game objects of 
+ * square shape. This also extends the base Shape class.
+ */
 public class Square extends Shape {
-	public Square(PApplet sketcher, int side) {
+	private static final long serialVersionUID = 1L;
+
+	public Square(PApplet sketcher, int side, Color color) {
 		// TODO Auto-generated constructor stub
 		this.sketcher = sketcher;
 		this.side_a = side;
 		this.side_b = side;
 		x = (int) sketcher.width /2;
 		y = (int) sketcher.height /2;
+		this.color = color;
 		
-	}
-
-	public void init_color(Color c) {
-		this.color = c;
 	}
 
 	public void step(int x_dir, int y_dir) {

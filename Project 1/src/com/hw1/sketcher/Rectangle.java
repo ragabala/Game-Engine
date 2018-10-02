@@ -1,9 +1,19 @@
-package com.ragabala.sketcher;
+package com.hw1.sketcher;
 
 import processing.core.PApplet;
 
+/**
+ * @author ragbalak
+ * The Rectangle class is used for implementing game objects of 
+ * rectangular shape. This also extends the base Shape class.
+ */
 public class Rectangle extends Shape {
-	public Rectangle(PApplet sketcher, int side_a, int side_b) {
+
+	private static final long serialVersionUID = 1L;
+
+	// This constructor is used for the renderer class.
+	// The x and y are predefined based on the PApplet.
+	public Rectangle(PApplet sketcher, int side_a, int side_b, Color color) {
 		// TODO Auto-generated constructor stub
 		this.sketcher = sketcher;
 		this.side_a = side_a;
@@ -13,22 +23,22 @@ public class Rectangle extends Shape {
 		x = 10;
 		y = (int) sketcher.height/2;
 		jump_limit = (int) sketcher.height/2 - 200;
+		this.color = color;
 	}
 	
-	// this is for the client server architecture
-	public Rectangle(PApplet sketcher, int side_a, int side_b, int x, int y) {
+	// this is for the client server architecture. This constructor design allows
+	// the x,y parameters to be passed.
+	public Rectangle(PApplet sketcher, int side_a, int side_b, int x, int y, Color color) {
 		// TODO Auto-generated constructor stub
 		this.sketcher = sketcher;
 		this.side_a = side_a;
 		this.side_b = side_b;
 		this.x = x;
 		this.y = y;
+		this.color = color;
 	}
 	
-
-	public void init_color(Color c) {
-		this.color = c;
-	}
+	
 
 	@Override
 	public void step() {
