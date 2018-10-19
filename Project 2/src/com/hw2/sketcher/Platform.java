@@ -7,7 +7,7 @@ public class Platform extends GameObject implements Movable, Renderable {
 	int breadth;
 	boolean isMovable;
 	int x_speed, y_speed;
-	int iter = 1, limit = 200;
+	int iter = 1, limit = 300;
 	Color color;
 
 	public Platform(PApplet sketcher, int x_pos, int y_pos, int length, int breadth) {
@@ -28,7 +28,7 @@ public class Platform extends GameObject implements Movable, Renderable {
 
 	@Override
 	public void step(int x_dir, int y_dir) {
-
+		step();  
 	}
 
 	@Override

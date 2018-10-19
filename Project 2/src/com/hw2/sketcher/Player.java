@@ -8,7 +8,6 @@ public class Player extends GameObject implements Movable, Renderable {
 	float x_speed = 10, y_speed = 0;
 	int diameter;
 	float gravity = 0.2f;
-	boolean connected = false;
 	boolean unset = false;
 	GameObject connectedObject = null;
 
@@ -34,7 +33,6 @@ public class Player extends GameObject implements Movable, Renderable {
 		// TODO Auto-generated method stub
 		if (y_dir != 0 && y_speed == 0) {
 			y_speed = -10;
-			connected = false;
 			connectedObject = null;
 			unset = true;
 		}
@@ -42,13 +40,13 @@ public class Player extends GameObject implements Movable, Renderable {
 		y_pos += y_speed;
 		if (y_speed != 0)
 			y_speed += gravity;
-		if (connected)
+		
+		if (connectedObject != null) {
 			y_speed = 0;
-		if (connectedObject != null)
 			if (!isConnected(connectedObject)) {
 				connectedObject = null;
-				connected = false;
 				y_speed = 5;
+			}
 		}
 		wrap();
 	}
@@ -71,19 +69,14 @@ public class Player extends GameObject implements Movable, Renderable {
 
 	}
 
-
-
 	public boolean isConnected(GameObject gameObject) {
-		if (Math.abs(y_pos + diameter / 2 - gameObject.y_pos) <= y_speed + 0.1 
-				&& x_pos >= gameObject.x_pos
+		if (Math.abs(y_pos + diameter / 2 - gameObject.y_pos) <= y_speed + 0.1 && x_pos >= gameObject.x_pos
 				&& x_pos <= gameObject.x_pos + gameObject.length) {
-			connected = true;
 			y_speed = 0;
 			connectedObject = gameObject;
-			if(connectedObject instanceof Platform && unset)
-			{
-				((Platform)connectedObject).changeColor();
-				unset=false;
+			if (connectedObject instanceof Platform && unset) {
+				((Platform) connectedObject).changeColor();
+				unset = false;
 			}
 			y_pos = gameObject.y_pos - (int) diameter / 2;
 			return true;
