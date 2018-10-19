@@ -7,8 +7,9 @@ public class Player extends GameObject implements Movable, Renderable {
 
 	float x_speed = 10, y_speed = 0;
 	int diameter;
-	float gravity = 0.3f;
+	float gravity = 0.2f;
 	boolean connected = false;
+	boolean unset = false;
 	GameObject connectedObject = null;
 
 	public Player(PApplet sketcher, int x, int y, int diameter) {
@@ -35,6 +36,7 @@ public class Player extends GameObject implements Movable, Renderable {
 			y_speed = -10;
 			connected = false;
 			connectedObject = null;
+			unset = true;
 		}
 		x_pos += x_dir * x_speed;
 		y_pos += y_speed;
@@ -78,6 +80,11 @@ public class Player extends GameObject implements Movable, Renderable {
 			connected = true;
 			y_speed = 0;
 			connectedObject = gameObject;
+			if(connectedObject instanceof Platform && unset)
+			{
+				((Platform)connectedObject).changeColor();
+				unset=false;
+			}
 			y_pos = gameObject.y_pos - (int) diameter / 2;
 			return true;
 		}

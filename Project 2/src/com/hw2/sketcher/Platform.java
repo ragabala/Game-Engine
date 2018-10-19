@@ -8,6 +8,7 @@ public class Platform extends GameObject implements Movable, Renderable {
 	boolean isMovable;
 	int x_speed, y_speed;
 	int iter = 1, limit = 200;
+	Color color;
 
 	public Platform(PApplet sketcher, int x_pos, int y_pos, int length, int breadth) {
 		// TODO Auto-generated constructor stub
@@ -16,6 +17,7 @@ public class Platform extends GameObject implements Movable, Renderable {
 		this.length = length;
 		this.breadth = breadth;
 		this.sketcher = sketcher;
+		color = new Color(255, 255, 255);
 	}
 
 	public void setMotion(int x, int y) {
@@ -60,9 +62,15 @@ public class Platform extends GameObject implements Movable, Renderable {
 	@Override
 	public void render() {
 		// TODO Auto-generated method stub
-		sketcher.fill(255);
+		sketcher.fill(color.r,color.g,color.b);
 		sketcher.rect(x_pos, y_pos, length, breadth);
 
 	}
 
+	public void changeColor() {
+		color = new Color((int)sketcher.random(255),
+				(int)sketcher.random(255),
+				(int)sketcher.random(255));
+	}
+	
 }
