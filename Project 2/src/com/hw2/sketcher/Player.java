@@ -69,12 +69,7 @@ public class Player extends GameObject implements Movable, Renderable {
 
 	}
 
-	public void wrap() {
-		if (x_pos > sketcher.width)
-			x_pos = 0;
-		if (x_pos < 0)
-			x_pos = sketcher.width;
-	}
+
 
 	public boolean isConnected(GameObject gameObject) {
 		if (Math.abs(y_pos + diameter / 2 - gameObject.y_pos) <= y_speed + 0.1 

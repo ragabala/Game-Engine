@@ -26,6 +26,9 @@ public class Game extends PApplet{
 			platforms[i] = new Platform(this, x_pos, y_pos, 60, 10);
 		}
 		
+		platforms[0].setMotion(1, 0);
+		platforms[noOfPlatforms/2].setMotion(0, 1);
+		
 		floor = new Floor(this);
 		int playerPos = (int)random(10, width);
 		int playerDiameter = 16;
@@ -44,6 +47,7 @@ public class Game extends PApplet{
 		background(0);
 		for (Platform platform : platforms) {
 			platform.render();
+			platform.step();
 			player.isConnected(platform);
 		}
 		floor.render();

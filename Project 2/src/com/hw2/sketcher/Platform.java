@@ -2,11 +2,13 @@ package com.hw2.sketcher;
 
 import processing.core.PApplet;
 
-public class Platform extends GameObject implements Movable,Renderable{
-	
-	int  breadth;
+public class Platform extends GameObject implements Movable, Renderable {
+
+	int breadth;
 	boolean isMovable;
 	int x_speed, y_speed;
+	int iter = 1, limit = 200;
+
 	public Platform(PApplet sketcher, int x_pos, int y_pos, int length, int breadth) {
 		// TODO Auto-generated constructor stub
 		this.x_pos = x_pos;
@@ -15,34 +17,44 @@ public class Platform extends GameObject implements Movable,Renderable{
 		this.breadth = breadth;
 		this.sketcher = sketcher;
 	}
-	
-	
-	public void setMotion() {
-		
+
+	public void setMotion(int x, int y) {
+		x_speed = x;
+		y_speed = y;
+		isMovable = true;
 	}
 
-	@Override 
+	@Override
 	public void step(int x_dir, int y_dir) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub
+		if (!isMovable)
+			return;
+		x_pos += x_speed;
+		y_pos += y_speed;
+		iter = (iter + 1) % limit;
+		if (iter == 0) {
+			x_speed *= -1;
+			y_speed *= -1;
+		}
+		wrap();
 	}
 
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -50,7 +62,7 @@ public class Platform extends GameObject implements Movable,Renderable{
 		// TODO Auto-generated method stub
 		sketcher.fill(255);
 		sketcher.rect(x_pos, y_pos, length, breadth);
-		
+
 	}
-	
+
 }
