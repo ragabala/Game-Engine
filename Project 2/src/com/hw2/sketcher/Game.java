@@ -8,6 +8,7 @@ public class Game extends PApplet{
 	Player player;
 	Floor floor;
 	int noOfPlatforms = 5;
+	int[] keys = {0,0};
 	@Override
 	public void setup() {
 		// TODO Auto-generated method stub
@@ -27,9 +28,8 @@ public class Game extends PApplet{
 		
 		floor = new Floor(this);
 		int playerPos = (int)random(10, width);
-		int playerDiameter = 15;
-		player = new Player(this, playerPos , floor.y_pos - (int)playerDiameter/2, playerDiameter);
-		
+		int playerDiameter = 16;
+		player = new Player(this, playerPos , floor.y_pos - (int)playerDiameter/2, playerDiameter);		
 	}
 	
 	@Override
@@ -44,16 +44,38 @@ public class Game extends PApplet{
 		background(0);
 		for (Platform platform : platforms) {
 			platform.render();
+			player.isConnected(platform);
 		}
 		floor.render();
 		player.render();
-
+		player.step(keys[0],keys[1]);
+		player.isConnected(floor);
 	}
 	
 	@Override
 	public void keyPressed() {
 		// TODO Auto-generated method stub
-
+		if(keyCode == RIGHT)
+			keys[0] = 1;
+		if(keyCode == LEFT)
+			keys[0] = -1;
+		if(keyCode == 10)
+			player.reset();
+		if(keyCode == 32)
+			keys[1]= 1;
+	}
+	
+	
+	
+	@Override
+	public void keyReleased() {
+		// TODO Auto-generated method stub
+		if(keyCode == RIGHT)
+			keys[0] = 0;
+		if(keyCode == LEFT)
+			keys[0] = 0;
+		if(keyCode == 32)
+			keys[1] = 0;
 	}
 	
 	public static void main(String[] args) {	

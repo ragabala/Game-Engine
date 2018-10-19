@@ -8,15 +8,16 @@ public class Floor extends GameObject implements Renderable{
 		this.sketcher = sketcher;
 		this.x_pos = 0;
 		this.y_pos = (int) (sketcher.height * 0.95);
-		
+		this.length = sketcher.width;
 	}
 
 	@Override
 	public void render() {
 		// TODO Auto-generated method stub
 		sketcher.stroke(255);
-		sketcher.line(x_pos, y_pos, sketcher.width, y_pos);
+		sketcher.line(x_pos, y_pos, length, y_pos);
 	}
+	
 	
 	 
 }

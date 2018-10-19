@@ -4,7 +4,7 @@ import processing.core.PApplet;
 
 public class Platform extends GameObject implements Movable,Renderable{
 	
-	int length, breadth;
+	int  breadth;
 	boolean isMovable;
 	int x_speed, y_speed;
 	public Platform(PApplet sketcher, int x_pos, int y_pos, int length, int breadth) {
