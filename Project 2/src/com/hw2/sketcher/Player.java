@@ -1,28 +1,31 @@
 package com.hw2.sketcher;
 
+import java.io.Serializable;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-public class Player extends GameObject implements Movable, Renderable {
-
+public class Player extends GameObject implements Movable, Renderable, Serializable {
+	private static final long serialVersionUID = 1L;
 	float x_speed = 10, y_speed = 0;
 	int diameter;
 	float gravity = 0.2f;
-	boolean unset = false;
-	GameObject connectedObject = null;
+	Color color;
+	transient GameObject connectedObject = null;
 
 	public Player(PApplet sketcher, int x, int y, int diameter) {
-		// TODO Auto-generated constructor stub
 		this.x_pos = x;
 		this.y_pos = y;
 		this.diameter = diameter;
 		this.sketcher = sketcher;
+		y_speed = 10; // this makes the player to reach the ground initially
+		this.color = Color.getRandomColor();
 	}
 
 	@Override
 	public void render() {
 		// TODO Auto-generated method stub
-		sketcher.fill(255, 0, 0);
+		sketcher.fill(color.r,color.g,color.b);
 		sketcher.ellipseMode(PConstants.CENTER);
 		sketcher.ellipse(x_pos, y_pos, diameter, diameter);
 
@@ -34,7 +37,6 @@ public class Player extends GameObject implements Movable, Renderable {
 		if (y_dir != 0 && y_speed == 0) {
 			y_speed = -10;
 			connectedObject = null;
-			unset = true;
 		}
 		x_pos += x_dir * x_speed;
 		y_pos += y_speed;
@@ -74,10 +76,6 @@ public class Player extends GameObject implements Movable, Renderable {
 				&& x_pos <= gameObject.x_pos + gameObject.length) {
 			y_speed = 0;
 			connectedObject = gameObject;
-			if (connectedObject instanceof Platform && unset) {
-				((Platform) connectedObject).changeColor();
-				unset = false;
-			}
 			y_pos = gameObject.y_pos - (int) diameter / 2;
 			return true;
 		}

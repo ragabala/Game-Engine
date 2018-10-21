@@ -3,7 +3,7 @@ package com.hw2.sketcher;
 import processing.core.PApplet;
 
 public class Platform extends GameObject implements Movable, Renderable {
-
+	private static final long serialVersionUID = 394432487520792007L;
 	int breadth;
 	boolean isMovable;
 	int x_speed, y_speed;
@@ -17,7 +17,7 @@ public class Platform extends GameObject implements Movable, Renderable {
 		this.length = length;
 		this.breadth = breadth;
 		this.sketcher = sketcher;
-		color = new Color(255, 255, 255);
+		this.color = Color.getRandomColor();
 	}
 
 	public void setMotion(int x, int y) {
@@ -67,10 +67,6 @@ public class Platform extends GameObject implements Movable, Renderable {
 
 	}
 
-	public void changeColor() {
-		color = new Color((int)sketcher.random(255),
-				(int)sketcher.random(255),
-				(int)sketcher.random(255));
-	}
+
 	
 }
