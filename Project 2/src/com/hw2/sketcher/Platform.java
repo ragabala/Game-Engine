@@ -44,7 +44,6 @@ public class Platform extends GameObject implements Movable, Renderable {
 			x_speed *= -1;
 			y_speed *= -1;
 		}
-		wrap();
 	}
 
 	@Override

@@ -45,6 +45,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		
 		if (connectedObject != null) {
 			y_speed = 0;
+			// set object to free fall when not connected
 			if (!isConnected(connectedObject)) {
 				connectedObject = null;
 				y_speed = 5;

@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.hw2.sketcher.GameObject;
-import com.hw2.sketcher.Movable;
 import com.hw2.sketcher.Player;
 import com.hw2.sketcher.Renderable;
 
@@ -73,6 +72,7 @@ class ClientReceiver implements Runnable {
 				temp.setSketcher(sketcher);
 				gameObjects.put(temp.GAME_OBJECT_ID, temp);
 				// generate a shape every 2 secs
+
 			}
 		} catch (IOException | ClassNotFoundException e1) {
 			e1.printStackTrace();
@@ -134,15 +134,12 @@ class Game extends PApplet {
 		// TODO Auto-generated method stub
 		background(0);
 		for (GameObject gameObject : gameObjects.values()) {
-			
 			if (gameObject instanceof Renderable)
 				((Renderable) gameObject).render();
-			if (gameObject instanceof Movable) {
-				((Movable) gameObject).step(keys[0], keys[1]);
-			}
 			if (!(gameObject instanceof Player))
 				player.isConnected(gameObject);
 		}
+		player.step(keys[0], keys[1]);
 	}
 
 	@Override
