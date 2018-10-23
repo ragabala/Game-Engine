@@ -5,4 +5,5 @@ public interface Movable {
 	public void step();
 	public void stop();
 	public void reset();
+	public float[] getSpeed();
 }

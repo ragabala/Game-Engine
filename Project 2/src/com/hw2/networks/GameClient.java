@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.hw2.sketcher.GameObject;
+import com.hw2.sketcher.Movable;
 import com.hw2.sketcher.Player;
 import com.hw2.sketcher.Renderable;
 
@@ -36,6 +37,7 @@ class PlayerSender implements Runnable {
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			while (true) {
 				outputStream.writeObject(player);
+				outputStream.flush();
 				outputStream.reset();
 			}
 		} catch (IOException e1) {
@@ -71,7 +73,6 @@ class ClientReceiver implements Runnable {
 				GameObject temp = (GameObject) inputStream.readObject();
 				temp.setSketcher(sketcher);
 				gameObjects.put(temp.GAME_OBJECT_ID, temp);
-				// generate a shape every 2 secs
 
 			}
 		} catch (IOException | ClassNotFoundException e1) {
@@ -100,7 +101,6 @@ class Game extends PApplet {
 	Player player;
 	int playerDiameter = 30;
 	int[] keys = { 0, 0 };
-
 
 	@Override
 	public void setup() {
@@ -132,17 +132,23 @@ class Game extends PApplet {
 	@Override
 	public void draw() {
 		// TODO Auto-generated method stub
+
+		setPlayerRelativeToGameObjects();
 		background(0);
 		for (GameObject gameObject : gameObjects.values()) {
 			if (gameObject instanceof Renderable)
 				((Renderable) gameObject).render();
+			if (gameObject instanceof Movable) {
+				((Movable) gameObject).step(keys[0], keys[1]);
+				// System.out.println(gameObject);
+			}
 			if (!(gameObject instanceof Player))
 				player.isConnected(gameObject);
 		}
-		player.step(keys[0], keys[1]);
+
 	}
 
-	@Override
+	@Override		
 	public void keyPressed() {
 		// TODO Auto-generated method stub
 		if (keyCode == RIGHT)
@@ -162,5 +168,17 @@ class Game extends PApplet {
 			keys[0] = 0;
 		if (keyCode == 32)
 			keys[1] = 0;
+	}
+	
+	
+	public void setPlayerRelativeToGameObjects() {
+		// Since the platforms changes each time through the socket
+		// Setting up the connected object to the current connected object
+		UUID tempUuid = player.getConnectedObjectID();
+		if (tempUuid != null) {
+			GameObject temp = gameObjects.get(tempUuid);
+			if (temp != null)
+				player.setConnectedObject(temp);
+		}
 	}
 }

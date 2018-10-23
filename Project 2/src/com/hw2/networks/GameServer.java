@@ -34,18 +34,18 @@ class ClientRequestHandler implements Runnable {
 		this.scene = scene;
 		this.sketcher = sketcher;
 	}
-
+		
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 		try {
 			ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
 			while (true) {
-				GameObject gameObject = (GameObject) inputStream.readObject();
+				GameObject gameObject = (GameObject) inputStream.readObject();	
 				// System.out.println("Got shape from client ["+socket.getPort()+"]");
 				gameObject.setClientId(socket.getPort());
 				gameObject.setSketcher(sketcher);
-				// this adds a new shape for the server to render
+				// this adds the player positions
 				scene.put(gameObject.GAME_OBJECT_ID, gameObject);
 			}
 		} catch (IOException | ClassNotFoundException e) {
@@ -82,6 +82,7 @@ class ClientResponseHandler implements Runnable {
 					// Do not write back objects to a client which was send from it.
 					if (gameObject.clientId != socket.getPort())
 						outputStream.writeObject(gameObject);
+					outputStream.flush();
 				}
 				outputStream.reset();
 			}
@@ -144,7 +145,7 @@ class ClientConnectionHandler implements Runnable {
  */
 public class GameServer extends PApplet {
 
-	static int noOfPlatforms = 5;
+	static int noOfPlatforms = 2;
 	static int width = 800, height = 800;
 	ConcurrentMap<UUID, GameObject> scene;
 	/*
@@ -175,8 +176,10 @@ public class GameServer extends PApplet {
 		for (GameObject gameObject : scene.values()) {
 			if (gameObject instanceof Renderable)
 				((Renderable) gameObject).render();
-			if (gameObject instanceof Platform)
+			if (gameObject instanceof Platform) {
 				((Movable) gameObject).step();
+			}
+
 		}
 	}
 
@@ -186,6 +189,8 @@ public class GameServer extends PApplet {
 		for (int i = 0; i < noOfPlatforms; i++) {
 			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
+			// for test purposes
+			y_pos = (int) (height * 0.5);
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10);
 			scene.put(temp.GAME_OBJECT_ID, temp);
 			if (i == 0)
