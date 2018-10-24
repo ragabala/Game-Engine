@@ -1,18 +1,21 @@
 package com.hw2.networks;
 
+import java.awt.SplashScreen;
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.hw2.sketcher.Color;
 import com.hw2.sketcher.Floor;
 import com.hw2.sketcher.GameObject;
 import com.hw2.sketcher.Movable;
 import com.hw2.sketcher.Platform;
+import com.hw2.sketcher.Player;
 import com.hw2.sketcher.Renderable;
 
 import processing.core.PApplet;
@@ -24,31 +27,39 @@ import processing.core.PApplet;
  * */
 class ClientRequestHandler implements Runnable {
 
-	ConcurrentMap<UUID, GameObject> scene;
+	ConcurrentMap<String, Player> playerMap;
 	Socket socket;
 	PApplet sketcher;
+	int playerDiameter = 20;
 
-	public ClientRequestHandler(PApplet sketcher, Socket socket, ConcurrentMap<UUID, GameObject> scene) {
+	public ClientRequestHandler(PApplet sketcher, Socket socket, ConcurrentMap<String, Player> playerMap) {
 		// TODO Auto-generated constructor stub
 		this.socket = socket;
-		this.scene = scene;
+		this.playerMap = playerMap;
 		this.sketcher = sketcher;
 	}
-		
+
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 		try {
-			ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
+			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+			// This player object is corresponding to one thread
+			// (i.e) one particular player
+			Player player = null;
 			while (true) {
-				GameObject gameObject = (GameObject) inputStream.readObject();	
-				// System.out.println("Got shape from client ["+socket.getPort()+"]");
-				gameObject.setClientId(socket.getPort());
-				gameObject.setSketcher(sketcher);
-				// this adds the player positions
-				scene.put(gameObject.GAME_OBJECT_ID, gameObject);
+				String playerVals[] = inputStream.readUTF().split("~");
+				int move_x = Integer.parseInt(playerVals[0]);
+				int move_y = Integer.parseInt(playerVals[1]);
+				if (player == null) {
+					int[] pos = Player.spawnPlayerPosition(sketcher);
+					player = new Player(sketcher, pos[0], pos[1], playerDiameter, Color.getRandomColor());
+				}
+				player.setMovement(move_x, move_y);
+				// add the player to the map with the UUID sent from the client
+				playerMap.put(player.GAME_OBJECT_ID, player);
 			}
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -63,12 +74,15 @@ class ClientRequestHandler implements Runnable {
  */
 class ClientResponseHandler implements Runnable {
 	Socket socket;
-	ConcurrentMap<UUID, GameObject> scene;
+	CopyOnWriteArrayList<GameObject> scene;
+	ConcurrentMap<String, Player> playerMap;
 
-	public ClientResponseHandler(Socket socket, ConcurrentMap<UUID, GameObject> scene) {
+	public ClientResponseHandler(Socket socket, CopyOnWriteArrayList<GameObject> scene,
+			ConcurrentMap<String, Player> playerMap) {
 		// TODO Auto-generated constructor stub
 		this.socket = socket;
 		this.scene = scene;
+		this.playerMap = playerMap;
 	}
 
 	@Override
@@ -77,12 +91,12 @@ class ClientResponseHandler implements Runnable {
 		try {
 			ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
 			while (true) {
-				// send a counter to the client every two seconds
-				for (GameObject gameObject : scene.values()) {
-					// Do not write back objects to a client which was send from it.
-					if (gameObject.clientId != socket.getPort())
-						outputStream.writeObject(gameObject);
-					outputStream.flush();
+				// send all scene objects and player objects to all clients
+				for (GameObject gameObject : scene) {
+					outputStream.writeObject(gameObject);
+				}
+				for (GameObject gameObject : playerMap.values()) {
+					outputStream.writeObject(gameObject);
 				}
 				outputStream.reset();
 			}
@@ -101,13 +115,15 @@ class ClientResponseHandler implements Runnable {
  * 
  */
 class ClientConnectionHandler implements Runnable {
-
-	ConcurrentMap<UUID, GameObject> scene;
+	CopyOnWriteArrayList<GameObject> scene;
+	ConcurrentMap<String, Player> playerMap;
 	PApplet sketcher;
 
-	public ClientConnectionHandler(PApplet sketcher, ConcurrentMap<UUID, GameObject> scene) {
+	public ClientConnectionHandler(PApplet sketcher, CopyOnWriteArrayList<GameObject> scene,
+			ConcurrentMap<String, Player> playerMap) {
 		// TODO Auto-generated constructor stub
 		this.scene = scene;
+		this.playerMap = playerMap;
 		this.sketcher = sketcher;
 	}
 
@@ -123,10 +139,10 @@ class ClientConnectionHandler implements Runnable {
 				Socket socket = sSocket.accept();
 				System.out.println("Client with port number: " + socket.getPort() + " is connected");
 				// start a new thread for handling requests from the client
-				ClientRequestHandler requestHandler = new ClientRequestHandler(sketcher, socket, scene);
+				ClientRequestHandler requestHandler = new ClientRequestHandler(sketcher, socket, playerMap);
 				new Thread(requestHandler).start();
 				// start a new thread for handling responses for the client
-				ClientResponseHandler responseHandler = new ClientResponseHandler(socket, scene);
+				ClientResponseHandler responseHandler = new ClientResponseHandler(socket, scene, playerMap);
 				new Thread(responseHandler).start();
 			}
 
@@ -147,21 +163,23 @@ public class GameServer extends PApplet {
 
 	static int noOfPlatforms = 2;
 	static int width = 800, height = 800;
-	ConcurrentMap<UUID, GameObject> scene;
+	CopyOnWriteArrayList<GameObject> scene;
+	ConcurrentMap<String, Player> playerMap;
 	/*
 	 * Let us construct 5 platforms of different colors three platforms has to move
 	 * and two are static Adding Platforms
 	 */
 
-	public GameServer(ConcurrentMap<UUID, GameObject> scene) {
+	public GameServer(CopyOnWriteArrayList<GameObject> scene, ConcurrentMap<String, Player> playerMap) {
 		// TODO Auto-generated constructor stub
 		this.scene = scene;
+		this.playerMap = playerMap;
 	}
 
 	@Override
 	public void setup() {
 		createScene(scene);
-		new Thread(new ClientConnectionHandler(this, scene)).start();
+		new Thread(new ClientConnectionHandler(this, scene, playerMap)).start();
 	}
 
 	@Override
@@ -173,17 +191,25 @@ public class GameServer extends PApplet {
 	@Override
 	public void draw() {
 		background(0);
-		for (GameObject gameObject : scene.values()) {
+		// scene
+		for (GameObject gameObject : scene) {
 			if (gameObject instanceof Renderable)
 				((Renderable) gameObject).render();
-			if (gameObject instanceof Platform) {
+			if (gameObject instanceof Movable)
 				((Movable) gameObject).step();
-			}
-
 		}
+		// Player
+		for (GameObject gameObject : playerMap.values()) {
+			((Renderable) gameObject).render();
+			((Movable) gameObject).step();
+		}
+		// collision check
+		for (GameObject gameObject : scene) 
+			for (GameObject player: playerMap.values()) 
+				((Player)player).isConnected(gameObject);
 	}
 
-	public void createScene(ConcurrentMap<UUID, GameObject> scene) {
+	public void createScene(CopyOnWriteArrayList<GameObject> scene) {
 		float _temp_x = (float) (width * 0.9) / noOfPlatforms;
 		float _temp_y = (float) (height * 0.9) / noOfPlatforms;
 		for (int i = 0; i < noOfPlatforms; i++) {
@@ -192,20 +218,20 @@ public class GameServer extends PApplet {
 			// for test purposes
 			y_pos = (int) (height * 0.5);
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10);
-			scene.put(temp.GAME_OBJECT_ID, temp);
 			if (i == 0)
 				temp.setMotion(1, 0);
 			if (i == noOfPlatforms / 2)
 				temp.setMotion(0, 1);
+			scene.add(temp);
 		}
-		Floor temp = new Floor(this, height, width);
-		scene.put(temp.GAME_OBJECT_ID, temp);
+		scene.add(new Floor(this, height, width));
 	}
 
 	public static void main(String[] args) {
 		String[] processingArgs = { "MySketch" };
-		ConcurrentMap<UUID, GameObject> scene = new ConcurrentHashMap<>();
-		GameServer mySketch = new GameServer(scene);
+		CopyOnWriteArrayList<GameObject> scene = new CopyOnWriteArrayList<>();
+		ConcurrentMap<String, Player> playerMap = new ConcurrentHashMap<>();
+		GameServer mySketch = new GameServer(scene, playerMap);
 		PApplet.runSketch(processingArgs, mySketch);
 
 	}

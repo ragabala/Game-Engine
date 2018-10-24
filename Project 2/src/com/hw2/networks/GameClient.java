@@ -1,15 +1,13 @@
 package com.hw2.networks;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.hw2.sketcher.GameObject;
-import com.hw2.sketcher.Movable;
 import com.hw2.sketcher.Player;
 import com.hw2.sketcher.Renderable;
 
@@ -22,23 +20,26 @@ import processing.core.PApplet;
 class PlayerSender implements Runnable {
 
 	Socket socket;
-	GameObject player;
+	StringBuffer playerString;
+	String playerUUID;
 
-	public PlayerSender(Socket socket, GameObject player) {
+	public PlayerSender(Socket socket, StringBuffer playerString) {
 		// TODO Auto-generated constructor stub
 		this.socket = socket;
-		this.player = player;
+		this.playerString = playerString;
 	}
 
 	@Override
 	public void run() {
-		ObjectOutputStream outputStream;
+		DataOutputStream outputStream;
 		try {
-			outputStream = new ObjectOutputStream(socket.getOutputStream());
+			outputStream = new DataOutputStream(socket.getOutputStream());
 			while (true) {
-				outputStream.writeObject(player);
-				outputStream.flush();
-				outputStream.reset();
+				// This will ensure that the client will send only if there is 
+				// a change in its position
+				if (playerString.length() > 0)
+					outputStream.writeUTF(playerString.toString());
+				playerString.setLength(0);
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -54,10 +55,10 @@ class PlayerSender implements Runnable {
  */
 class ClientReceiver implements Runnable {
 	Socket socket;
-	ConcurrentMap<UUID, GameObject> gameObjects;
+	ConcurrentMap<String, GameObject> gameObjects;
 	PApplet sketcher;
 
-	public ClientReceiver(PApplet sketcher, Socket socket, ConcurrentMap<UUID, GameObject> gameObjects) {
+	public ClientReceiver(PApplet sketcher, Socket socket, ConcurrentMap<String, GameObject> gameObjects) {
 		// TODO Auto-generated constructor stub
 		this.socket = socket;
 		this.gameObjects = gameObjects;
@@ -72,8 +73,8 @@ class ClientReceiver implements Runnable {
 			while (true) {
 				GameObject temp = (GameObject) inputStream.readObject();
 				temp.setSketcher(sketcher);
+				// This will add both player and other platform objects
 				gameObjects.put(temp.GAME_OBJECT_ID, temp);
-
 			}
 		} catch (IOException | ClassNotFoundException e1) {
 			e1.printStackTrace();
@@ -92,28 +93,29 @@ public class GameClient {
 		String[] processingArgs = { "MySketch" };
 		Game mySketch = new Game();
 		PApplet.runSketch(processingArgs, mySketch);
-
 	}
 }
 
 class Game extends PApplet {
-	ConcurrentMap<UUID, GameObject> gameObjects;
-	Player player;
+	ConcurrentMap<String, GameObject> gameObjects;
+	StringBuffer playerString;
 	int playerDiameter = 30;
 	int[] keys = { 0, 0 };
+	String playerUUID;
 
 	@Override
 	public void setup() {
 		// TODO Auto-generated method stub
 		// Adding Current Player to the gameObjects
 		gameObjects = new ConcurrentHashMap<>();
-		player = new Player(this, (int) random(10, width), (int) random(10, height), playerDiameter);
-		gameObjects.put(player.GAME_OBJECT_ID, player);
+		// This player is just used for converting it into string
+		// The actual player creation happens in the server
+		playerString = new StringBuffer("0~0");
 		Socket socket;
 		try {
 			socket = new Socket("127.0.0.1", 15001);
 			System.out.println("Client to server socket established");
-			Thread sender = new Thread(new PlayerSender(socket, player));
+			Thread sender = new Thread(new PlayerSender(socket, playerString));
 			Thread receiver = new Thread(new ClientReceiver(this, socket, gameObjects));
 			sender.start();
 			receiver.start();
@@ -132,23 +134,17 @@ class Game extends PApplet {
 	@Override
 	public void draw() {
 		// TODO Auto-generated method stub
-
-		setPlayerRelativeToGameObjects();
 		background(0);
 		for (GameObject gameObject : gameObjects.values()) {
 			if (gameObject instanceof Renderable)
 				((Renderable) gameObject).render();
-			if (gameObject instanceof Movable) {
-				((Movable) gameObject).step(keys[0], keys[1]);
-				// System.out.println(gameObject);
-			}
-			if (!(gameObject instanceof Player))
-				player.isConnected(gameObject);
+			int n = playerString.length();
+			playerString.replace(0, n, keys[0] + "~" + keys[1]);
 		}
 
 	}
 
-	@Override		
+	@Override
 	public void keyPressed() {
 		// TODO Auto-generated method stub
 		if (keyCode == RIGHT)
@@ -169,16 +165,12 @@ class Game extends PApplet {
 		if (keyCode == 32)
 			keys[1] = 0;
 	}
-	
-	
-	public void setPlayerRelativeToGameObjects() {
-		// Since the platforms changes each time through the socket
-		// Setting up the connected object to the current connected object
-		UUID tempUuid = player.getConnectedObjectID();
-		if (tempUuid != null) {
-			GameObject temp = gameObjects.get(tempUuid);
-			if (temp != null)
-				player.setConnectedObject(temp);
-		}
-	}
+
+	/*
+	 * public void setPlayerRelativeToGameObjects() { // Since the platforms changes
+	 * each time through the socket // Setting up the connected object to the
+	 * current connected object UUID tempUuid = player.getConnectedObjectID(); if
+	 * (tempUuid != null) { GameObject temp = gameObjects.get(tempUuid); if (temp !=
+	 * null) player.setConnectedObject(temp); } }
+	 */
 }

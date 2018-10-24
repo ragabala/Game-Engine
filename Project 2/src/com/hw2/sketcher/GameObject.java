@@ -10,8 +10,7 @@ public class GameObject implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public final UUID GAME_OBJECT_ID = UUID.randomUUID();
-	public int clientId;
+	public String GAME_OBJECT_ID = UUID.randomUUID().toString();
 	int x_pos, y_pos, length;
 	transient PApplet sketcher;
 	public void wrap() {
@@ -25,7 +24,4 @@ public class GameObject implements Serializable{
 		this.sketcher = sketcher;
 	}
 	
-	public void setClientId(int clientId) {
-		this.clientId = clientId;
-	}
 }

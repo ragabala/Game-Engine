@@ -18,7 +18,7 @@ public class Game extends PApplet {
 		gameObjects = new ArrayList<>();
 
 		System.out.println(gameObjects.size());
-		player = new Player(this, (int) random(10, width),(int) random(10, height) , playerDiameter);
+		player = new Player(this, (int) random(10, width),(int) random(10, height) , playerDiameter, Color.getRandomColor());
 		gameObjects.add(player);
 	}
 

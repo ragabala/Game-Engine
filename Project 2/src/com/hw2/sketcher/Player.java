@@ -1,7 +1,6 @@
 package com.hw2.sketcher;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -9,19 +8,34 @@ import processing.core.PConstants;
 public class Player extends GameObject implements Movable, Renderable, Serializable {
 	private static final long serialVersionUID = 1L;
 	float[] speed = { 10, 0 };
-
 	int diameter;
 	float gravity = 0.2f;
 	Color color;
-	GameObject connectedObject = null;
+	transient GameObject connectedObject = null;
+	int move_x, move_y;
+	String clientId; // this contains the UUID of the client
 
-	public Player(PApplet sketcher, int x, int y, int diameter) {
+	public Player(PApplet sketcher, int x, int y, int diameter, Color color) {
 		this.x_pos = x;
 		this.y_pos = y;
 		this.diameter = diameter;
 		this.sketcher = sketcher;
 		speed[1] = 10; // this makes the player to reach the ground initially
-		this.color = Color.getRandomColor();
+		this.color = color;
+		this.clientId = GAME_OBJECT_ID;
+	}
+
+	public String getClientId() {
+		return clientId;
+	}
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+
+	public void setMovement(int x, int y) {
+		move_x = x;
+		move_y = y;
 	}
 
 	@Override
@@ -64,7 +78,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub
-
+		step(move_x, move_y);
 	}
 
 	@Override
@@ -93,7 +107,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 	}
 
-	public UUID getConnectedObjectID() {
+	public String getConnectedObjectID() {
 		if (connectedObject == null)
 			return null;
 		return connectedObject.GAME_OBJECT_ID;
@@ -108,4 +122,11 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// TODO Auto-generated method stub
 		return speed;
 	}
+
+	public static int[] spawnPlayerPosition(PApplet sketcher) {
+		int w = (int) sketcher.random((float) (sketcher.width * 0.1), (float) (sketcher.width * 0.9));
+		int h = (int) sketcher.random((float) (sketcher.height * 0.1), (float) (sketcher.height * 0.9));
+		return new int[] { w, h };
+	}
+
 }
