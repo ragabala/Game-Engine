@@ -14,6 +14,7 @@ public abstract class GameObject implements Serializable {
 	int x_pos, y_pos, length;
 	transient PApplet sketcher;
 
+
 	public void wrap() {
 		if (x_pos > sketcher.width)
 			x_pos = 0;

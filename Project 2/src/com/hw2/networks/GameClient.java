@@ -30,9 +30,7 @@ class PlayerSender implements Runnable {
 
 	@Override
 	public void run() {
-		DataOutputStream outputStream;
-		try {
-			outputStream = new DataOutputStream(socket.getOutputStream());
+		try(DataOutputStream outputStream= new DataOutputStream(socket.getOutputStream())){
 			while (true) {
 				// This will ensure that the client will send only if there is 
 				// a change in its position
@@ -41,7 +39,7 @@ class PlayerSender implements Runnable {
 				playerString.setLength(0);
 			}
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			System.out.println("Closing Sender thread in client");
 		}
 	}
 
@@ -66,9 +64,7 @@ class ClientReceiver implements Runnable {
 
 	@Override
 	public void run() {
-		DataInputStream inputStream;
-		try {
-			inputStream = new DataInputStream(socket.getInputStream());
+		try(DataInputStream inputStream = new DataInputStream(socket.getInputStream())){
 			GameObject temp = null;
 			while (true) {
 				String inputObtained = inputStream.readUTF();
@@ -76,8 +72,6 @@ class ClientReceiver implements Runnable {
 				for (String gameObjectInput : inputVals) {
 					String[] gameObjectVals = gameObjectInput.split("~");
 					String gameGUID = gameObjectVals[1];
-					//System.out.println(input);
-					
 					if(gameObjects.containsKey(gameGUID)) {
 						temp = gameObjects.get(gameGUID); 
 						temp.updateGameObject(gameObjectVals);
@@ -88,14 +82,10 @@ class ClientReceiver implements Runnable {
 						temp.setSketcher(sketcher);
 						gameObjects.put(gameGUID, temp);
 					}
-
 				}
-				
-				// This will add both player and other platform objects
-				
 			}
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			System.out.println("Closing receiver thread in client");
 		}
 	}
 
@@ -183,12 +173,4 @@ class Game extends PApplet {
 		if (keyCode == 32)
 			keys[1] = 0;
 	}
-
-	/*
-	 * public void setPlayerRelativeToGameObjects() { // Since the platforms changes
-	 * each time through the socket // Setting up the connected object to the
-	 * current connected object UUID tempUuid = player.getConnectedObjectID(); if
-	 * (tempUuid != null) { GameObject temp = gameObjects.get(tempUuid); if (temp !=
-	 * null) player.setConnectedObject(temp); } }
-	 */
 }

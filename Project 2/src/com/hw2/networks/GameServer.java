@@ -40,13 +40,15 @@ class ClientRequestHandler implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		try {
-			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+		int port = socket.getPort();
+		Player player = null;
+		try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 			// This player object is corresponding to one thread
 			// (i.e) one particular player
-			Player player = null;
+
 			while (true) {
-				String playerVals[] = inputStream.readUTF().split("~");
+				String input = inputStream.readUTF();
+				String playerVals[] = input.split("~");
 				int move_x = Integer.parseInt(playerVals[0]);
 				int move_y = Integer.parseInt(playerVals[1]);
 				if (player == null) {
@@ -60,7 +62,8 @@ class ClientRequestHandler implements Runnable {
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			player.kill();
+			System.out.println("Client [" + port + "] Request handler is closed");
 		}
 	}
 
@@ -76,7 +79,7 @@ class ClientResponseHandler implements Runnable {
 	ConcurrentMap<String, GameObject> scene;
 	ConcurrentMap<String, Player> playerMap;
 
-	public ClientResponseHandler(Socket socket,ConcurrentMap<String, GameObject>  scene,
+	public ClientResponseHandler(Socket socket, ConcurrentMap<String, GameObject> scene,
 			ConcurrentMap<String, Player> playerMap) {
 		// TODO Auto-generated constructor stub
 		this.socket = socket;
@@ -87,18 +90,17 @@ class ClientResponseHandler implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		try {
-			DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+		int port = socket.getPort();
+		try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
 			StringBuffer buffer = new StringBuffer();
 			while (true) {
-				// System.out.println("scene : "+scene.values().size());
 				// send all scene objects and player objects to all clients
 				for (GameObject gameObject : scene.values()) {
-					buffer.append(gameObject.toGameObjectString()+"~~");	
+					buffer.append(gameObject.toGameObjectString() + "~~");
 				}
 				// System.out.println("scene : "+playerMap.values().size());
-				for (GameObject gameObject : playerMap.values()) {
-					buffer.append(gameObject.toGameObjectString()+"~~");
+				for (Player gameObject : playerMap.values()) {
+					buffer.append(gameObject.toGameObjectString() + "~~");
 				}
 				outputStream.writeUTF(buffer.toString());
 				buffer.delete(0, buffer.length());
@@ -106,7 +108,7 @@ class ClientResponseHandler implements Runnable {
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Client [" + port + "]Response handler is closed");
 		}
 	}
 
@@ -134,6 +136,7 @@ class ClientConnectionHandler implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
+
 		ServerSocket sSocket;
 		try {
 			sSocket = new ServerSocket(15001);
@@ -152,7 +155,6 @@ class ClientConnectionHandler implements Runnable {
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
@@ -197,7 +199,7 @@ public class GameServer extends PApplet {
 		background(0);
 		// scene
 		for (GameObject gameObject : scene.values()) {
-		if (gameObject instanceof Renderable)
+			if (gameObject instanceof Renderable)
 				((Renderable) gameObject).render();
 			if (gameObject instanceof Movable)
 				((Movable) gameObject).step();
@@ -233,7 +235,5 @@ public class GameServer extends PApplet {
 		ConcurrentMap<String, Player> playerMap = new ConcurrentHashMap<>();
 		GameServer mySketch = new GameServer(scene, playerMap);
 		PApplet.runSketch(processingArgs, mySketch);
-
 	}
-
 }

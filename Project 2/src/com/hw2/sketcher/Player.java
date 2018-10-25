@@ -2,7 +2,6 @@ package com.hw2.sketcher;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -15,7 +14,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	Color color;
 	transient GameObject connectedObject = null;
 	int move_x, move_y;
-	String clientId; // this contains the UUID of the client
+	boolean isAlive;
 
 	public Player(PApplet sketcher, int x, int y, int diameter, Color color) {
 		this.x_pos = x;
@@ -24,15 +23,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		this.sketcher = sketcher;
 		speed[1] = 10; // this makes the player to reach the ground initially
 		this.color = color;
-		this.clientId = GAME_OBJECT_ID;
-	}
-
-	public String getClientId() {
-		return clientId;
-	}
-
-	public void setClientId(String clientId) {
-		this.clientId = clientId;
+		this.isAlive = true;
 	}
 
 	public void setMovement(int x, int y) {
@@ -43,6 +34,8 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	@Override
 	public void render() {
 		// TODO Auto-generated method stub
+		if (!isAlive)
+			return;
 		sketcher.fill(color.r, color.g, color.b);
 		sketcher.ellipseMode(PConstants.CENTER);
 		sketcher.ellipse(x_pos, y_pos, diameter, diameter);
@@ -54,7 +47,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// TODO Auto-generated method stub
 
 		x_pos += x_dir * speed[0];
-		
+
 		// If the object is free falling
 		if (connectedObject == null) {
 			y_pos += speed[1];
@@ -110,7 +103,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		}
 		return false;
 	}
-	
+
 	public void resolveCollision(Collection<GameObject> gameObjects) {
 		for (GameObject gameObject : gameObjects) {
 			isConnected(gameObject);
@@ -133,26 +126,26 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		return speed;
 	}
 
+	public void kill() {
+		isAlive = false;
+	}
+
+	public boolean isAlive() {
+		return isAlive;
+	}
+
 	public static int[] spawnPlayerPosition(PApplet sketcher) {
 		int w = (int) sketcher.random((float) (sketcher.width * 0.1), (float) (sketcher.width * 0.9));
 		int h = (int) sketcher.random((float) (sketcher.height * 0.1), (float) (sketcher.height * 0.9));
 		return new int[] { w, h };
 	}
 
-
-
 	@Override
 	public String toGameObjectString() {
 		// TODO Auto-generated method stub
-			return "PLAYER~"+
-				GAME_OBJECT_ID+"~"+
-				x_pos+"~"+
-				y_pos+"~"+
-				diameter+"~"+
-				color.r+"~"+
-				color.g+"~"+
-				color.b;
-		
+		return "PLAYER~" + GAME_OBJECT_ID + "~" + x_pos + "~" + y_pos + "~" + diameter + "~" + color.r + "~" + color.g
+				+ "~" + color.b + "~" + isAlive;
+
 	}
 
 	@Override
@@ -160,7 +153,8 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// TODO Auto-generated method stub
 		x_pos = Integer.parseInt(vals[2]);
 		y_pos = Integer.parseInt(vals[3]);
-		
+		isAlive = Boolean.parseBoolean(vals[8]);
+
 	}
 
 }
