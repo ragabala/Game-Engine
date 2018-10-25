@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.hw2.sketcher.Color;
+import com.hw2.sketcher.DeathZone;
 import com.hw2.sketcher.Floor;
 import com.hw2.sketcher.GameObject;
 import com.hw2.sketcher.Movable;
@@ -91,7 +92,8 @@ class ClientResponseHandler implements Runnable {
 			while (true) {
 				// send all scene objects and player objects to all clients
 				for (GameObject gameObject : scene) {
-					outputStream.writeObject(gameObject);
+					if (!(gameObject instanceof DeathZone))
+						outputStream.writeObject(gameObject);
 				}
 				for (GameObject gameObject : playerMap.values()) {
 					outputStream.writeObject(gameObject);
@@ -157,19 +159,22 @@ class ClientConnectionHandler implements Runnable {
  */
 public class GameServer extends PApplet {
 
-	static int noOfPlatforms = 2;
 	static int width = 800, height = 800;
 	CopyOnWriteArrayList<GameObject> scene;
 	ConcurrentMap<String, Player> playerMap;
+	int noOfPlatforms, noOfMovingPlatforms;
 	/*
 	 * Let us construct 5 platforms of different colors three platforms has to move
 	 * and two are static Adding Platforms
 	 */
 
-	public GameServer(CopyOnWriteArrayList<GameObject> scene, ConcurrentMap<String, Player> playerMap) {
+	public GameServer(CopyOnWriteArrayList<GameObject> scene, ConcurrentMap<String, Player> playerMap,
+			int noOfPlatforms, int noOfMovingPlatforms) {
 		// TODO Auto-generated constructor stub
 		this.scene = scene;
 		this.playerMap = playerMap;
+		this.noOfPlatforms = noOfPlatforms;
+		this.noOfMovingPlatforms = noOfMovingPlatforms;
 	}
 
 	@Override
@@ -200,34 +205,54 @@ public class GameServer extends PApplet {
 			((Movable) gameObject).step();
 		}
 		// collision check
-		for (GameObject gameObject : scene) 
-			for (GameObject player: playerMap.values()) 
-				((Player)player).isConnected(gameObject);
+		for (GameObject gameObject : scene)
+			for (GameObject player : playerMap.values())
+				((Player) player).isConnected(gameObject);
 	}
 
-	public void createScene(CopyOnWriteArrayList<GameObject> scene) {
-		float _temp_x = (float) (width * 0.9) / noOfPlatforms;
-		float _temp_y = (float) (height * 0.9) / noOfPlatforms;
-		for (int i = 0; i < noOfPlatforms; i++) {
+	public void createScene(CopyOnWriteArrayList< GameObject> scene) {
+		float _temp_x = (float) (width * 0.7) / noOfPlatforms;
+		float _temp_y = (float) (height * 0.7) / noOfPlatforms;
+		int[][] movements = {{0,1},{1,0}};
+		int iter = 1;
+		for (int i = 1; i <= noOfPlatforms; i++) {
 			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
-			// for test purposes
-			y_pos = (int) (height * 0.5);
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
-			if (i == 0)
-				temp.setMotion(1, 0);
-			if (i == noOfPlatforms / 2)
-				temp.setMotion(0, 1);
+			if(iter <= noOfMovingPlatforms)
+			{
+				int move = iter%2;
+				temp.setMotion(movements[move][0], movements[move][1]);
+				iter++;
+			}
 			scene.add(temp);
 		}
-		scene.add(new Floor(this, height, width));
+		Floor temp = new Floor(this, height, width);
+		scene.add(temp);
+		DeathZone deathZone = new DeathZone(height, width);
+		scene.add(deathZone);
+
 	}
 
 	public static void main(String[] args) {
+		int noOfPlatforms = 0, noOfMovingPlatforms = 0;
 		String[] processingArgs = { "MySketch" };
+		System.out.println("Number of Arguments passed : " + args.length);
+		if (args.length < 2) {
+			System.err.println(
+					"The Game server should be invoked with the following parameters <# Of Platforms> <# Of moving platforms>");
+			System.exit(0);
+		}
+		noOfPlatforms = Integer.parseInt(args[0]);
+		noOfMovingPlatforms = Integer.parseInt(args[1]);
+		if (noOfPlatforms < noOfMovingPlatforms) {
+			System.err.println("# Of moving platforms should be lesser than # of platforms");
+			System.exit(0);
+		}
+
 		CopyOnWriteArrayList<GameObject> scene = new CopyOnWriteArrayList<>();
 		ConcurrentMap<String, Player> playerMap = new ConcurrentHashMap<>();
-		GameServer mySketch = new GameServer(scene, playerMap);
+		GameServer mySketch = new GameServer(scene, playerMap, noOfPlatforms, noOfMovingPlatforms);
 		PApplet.runSketch(processingArgs, mySketch);
 
 	}

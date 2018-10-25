@@ -67,13 +67,31 @@ class ClientReceiver implements Runnable {
 	@Override
 	public void run() {
 		ObjectInputStream inputStream;
+		
+		int iterations = 1000;
+		int gameIter = 0;
+		long startTIme = 0;
+		long endTIme = 0;
+		
 		try {
 			inputStream = new ObjectInputStream(socket.getInputStream());
 			while (true) {
+				if (gameIter == 0)
+					startTIme = System.currentTimeMillis();
+				
 				GameObject temp = (GameObject) inputStream.readObject();
 				temp.setSketcher(sketcher);
 				// This will add both player and other platform objects
 				gameObjects.put(temp.GAME_OBJECT_ID, temp);
+				
+
+				if (gameIter == iterations) {
+					endTIme = System.currentTimeMillis();
+					gameIter = -1;
+					System.out.println("Time Taken for 1000 game loops(in ms) : "+ (endTIme - startTIme));
+				}
+				gameIter++;
+
 			}
 		} catch (IOException | ClassNotFoundException e1) {
 		}
@@ -100,6 +118,7 @@ class Game extends PApplet {
 	int playerDiameter = 30;
 	int[] keys = { 0, 0 };
 	String playerUUID;
+
 
 	@Override
 	public void setup() {
@@ -131,6 +150,7 @@ class Game extends PApplet {
 	@Override
 	public void draw() {
 		// TODO Auto-generated method stub
+	
 		background(0);
 		for (GameObject gameObject : gameObjects.values()) {
 			if (gameObject instanceof Renderable)
@@ -138,6 +158,8 @@ class Game extends PApplet {
 			int n = playerString.length();
 			playerString.replace(0, n, keys[0] + "~" + keys[1]);
 		}
+		
+
 
 	}
 

@@ -30,9 +30,9 @@ class PlayerSender implements Runnable {
 
 	@Override
 	public void run() {
-		try(DataOutputStream outputStream= new DataOutputStream(socket.getOutputStream())){
+		try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
 			while (true) {
-				// This will ensure that the client will send only if there is 
+				// This will ensure that the client will send only if there is
 				// a change in its position
 				if (playerString.length() > 0)
 					outputStream.writeUTF(playerString.toString());
@@ -54,6 +54,11 @@ class ClientReceiver implements Runnable {
 	Socket socket;
 	ConcurrentMap<String, GameObject> gameObjects;
 	PApplet sketcher;
+	
+	int iterations = 1000;
+	int gameIter = 0;
+	long startTIme = 0;
+	long endTIme = 0;
 
 	public ClientReceiver(PApplet sketcher, Socket socket, ConcurrentMap<String, GameObject> gameObjects) {
 		// TODO Auto-generated constructor stub
@@ -64,25 +69,34 @@ class ClientReceiver implements Runnable {
 
 	@Override
 	public void run() {
-		try(DataInputStream inputStream = new DataInputStream(socket.getInputStream())){
+		try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 			GameObject temp = null;
 			while (true) {
+				if (gameIter == 0)
+					startTIme = System.currentTimeMillis();
+				
 				String inputObtained = inputStream.readUTF();
 				String[] inputVals = inputObtained.split("~~");
 				for (String gameObjectInput : inputVals) {
 					String[] gameObjectVals = gameObjectInput.split("~");
 					String gameGUID = gameObjectVals[1];
-					if(gameObjects.containsKey(gameGUID)) {
-						temp = gameObjects.get(gameGUID); 
+					if (gameObjects.containsKey(gameGUID)) {
+						temp = gameObjects.get(gameGUID);
 						temp.updateGameObject(gameObjectVals);
-					}
-					else
-					{
+					} else {
 						temp = GameObject.parseGameString(gameObjectVals);
 						temp.setSketcher(sketcher);
 						gameObjects.put(gameGUID, temp);
 					}
 				}
+				
+				
+				if (gameIter == iterations) {
+					endTIme = System.currentTimeMillis();
+					gameIter = -1;
+					System.out.println("Time Taken for 1000 game loops(in ms) : "+ (endTIme - startTIme));
+				}
+				gameIter++;
 			}
 		} catch (IOException e1) {
 			System.out.println("Closing receiver thread in client");
@@ -95,7 +109,7 @@ class ClientReceiver implements Runnable {
  * @author ragbalak The main client thread that spawns the sender and receiver
  *         threads.
  */
-public class GameClientStringBased {
+public class GameClient {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		String[] processingArgs = { "MySketch" };
@@ -110,6 +124,7 @@ class Game extends PApplet {
 	int playerDiameter = 30;
 	int[] keys = { 0, 0 };
 	String playerUUID;
+
 
 	@Override
 	public void setup() {
@@ -142,13 +157,15 @@ class Game extends PApplet {
 	@Override
 	public void draw() {
 		// TODO Auto-generated method stub
+
 		background(0);
-		//System.out.println("gameObjects"+gameObjects.size());
+		// System.out.println("gameObjects"+gameObjects.size());
 		for (GameObject gameObject : gameObjects.values()) {
 			if (gameObject instanceof Renderable)
 				((Renderable) gameObject).render();
 		}
 		playerString.replace(0, playerString.length(), keys[0] + "~" + keys[1]);
+
 
 	}
 
@@ -163,7 +180,8 @@ class Game extends PApplet {
 			keys[1] = 1;
 	}
 
-	@Override	public void keyReleased() {
+	@Override
+	public void keyReleased() {
 		// TODO Auto-generated method stub
 		if (keyCode == RIGHT)
 			keys[0] = 0;

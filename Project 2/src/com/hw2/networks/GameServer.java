@@ -223,9 +223,9 @@ public class GameServer extends PApplet {
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
 			if (i == 1)
-				temp.setMotion(1, 0);
-			if (i == 1+(noOfPlatforms / 2))
 				temp.setMotion(0, 1);
+			if (i == 1+(noOfPlatforms / 2))
+				temp.setMotion(1, 0);
 			scene.put(temp.GAME_OBJECT_ID, temp);
 		}
 		Floor temp = new Floor(this, height, width);

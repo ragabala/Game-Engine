@@ -97,7 +97,7 @@ class ClientResponseHandler implements Runnable {
 			while (true) {
 				// send all scene objects and player objects to all clients
 				for (GameObject gameObject : scene.values()) {
-					if(!(gameObject instanceof DeathZone))
+					if (!(gameObject instanceof DeathZone))
 						buffer.append(gameObject.toGameObjectString() + "~~");
 				}
 				// System.out.println("scene : "+playerMap.values().size());
@@ -133,6 +133,7 @@ class ClientConnectionHandler implements Runnable {
 		this.scene = scene;
 		this.playerMap = playerMap;
 		this.sketcher = sketcher;
+
 	}
 
 	@Override
@@ -167,21 +168,24 @@ class ClientConnectionHandler implements Runnable {
  *         The Game loop access the game objects that are received from the
  *         client and renders then on the screen.
  */
-public class GameServerStringBased extends PApplet {
+public class GameServer extends PApplet {
 
-	static int noOfPlatforms = 5;
 	static int width = 800, height = 800;
 	ConcurrentMap<String, GameObject> scene;
 	ConcurrentMap<String, Player> playerMap;
+	int noOfPlatforms, noOfMovingPlatforms;
 	/*
 	 * Let us construct 5 platforms of different colors three platforms has to move
 	 * and two are static Adding Platforms
 	 */
 
-	public GameServerStringBased(ConcurrentMap<String, GameObject> scene, ConcurrentMap<String, Player> playerMap) {
+	public GameServer(ConcurrentMap<String, GameObject> scene, ConcurrentMap<String, Player> playerMap,
+			int noOfPlatforms, int noOfMovingPlatforms) {
 		// TODO Auto-generated constructor stub
 		this.scene = scene;
 		this.playerMap = playerMap;
+		this.noOfPlatforms = noOfPlatforms;
+		this.noOfMovingPlatforms = noOfMovingPlatforms;
 	}
 
 	@Override
@@ -205,7 +209,7 @@ public class GameServerStringBased extends PApplet {
 				((Renderable) gameObject).render();
 			if (gameObject instanceof Movable)
 				((Movable) gameObject).step();
-				
+
 		}
 		// Player
 		for (Player player : playerMap.values()) {
@@ -218,28 +222,49 @@ public class GameServerStringBased extends PApplet {
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
 		float _temp_x = (float) (width * 0.7) / noOfPlatforms;
 		float _temp_y = (float) (height * 0.7) / noOfPlatforms;
+		int[][] movements = {{0,1},{1,0}};
+		int iter = 1;
 		for (int i = 1; i <= noOfPlatforms; i++) {
 			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
-			if (i == 1)
-				temp.setMotion(1, 0);
-			if (i == 1+(noOfPlatforms / 2))
-				temp.setMotion(0, 1);
+			if(iter <= noOfMovingPlatforms)
+			{
+				int move = iter%2;
+				temp.setMotion(movements[move][0], movements[move][1]);
+				iter++;
+			}
 			scene.put(temp.GAME_OBJECT_ID, temp);
 		}
 		Floor temp = new Floor(this, height, width);
 		scene.put(temp.GAME_OBJECT_ID, temp);
 		DeathZone deathZone = new DeathZone(height, width);
 		scene.put(deathZone.GAME_OBJECT_ID, deathZone);
-				
+
 	}
 
 	public static void main(String[] args) {
+		int noOfPlatforms=0, noOfMovingPlatforms=0;
 		String[] processingArgs = { "MySketch" };
+		System.out.println("Number of Arguments passed : " + args.length);
+		if (args.length < 2) {
+			System.err.println(
+					"The Game server should be invoked with the following parameters <# Of Platforms> <# Of moving platforms>");
+			System.exit(0);
+		}
+		noOfPlatforms = Integer.parseInt(args[0]);
+		noOfMovingPlatforms = Integer.parseInt(args[1]);
+		if (noOfPlatforms < noOfMovingPlatforms) {
+			System.err.println(
+					"# Of moving platforms should be lesser than # of platforms");
+			System.exit(0);
+		}
+		
+		
+
 		ConcurrentMap<String, GameObject> scene = new ConcurrentHashMap<>();
 		ConcurrentMap<String, Player> playerMap = new ConcurrentHashMap<>();
-		GameServerStringBased mySketch = new GameServerStringBased(scene, playerMap);
+		GameServer mySketch = new GameServer(scene, playerMap, noOfPlatforms, noOfMovingPlatforms);
 		PApplet.runSketch(processingArgs, mySketch);
 	}
 }
