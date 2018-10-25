@@ -163,8 +163,7 @@ class Game extends PApplet {
 			keys[1] = 1;
 	}
 
-	@Override
-	public void keyReleased() {
+	@Override	public void keyReleased() {
 		// TODO Auto-generated method stub
 		if (keyCode == RIGHT)
 			keys[0] = 0;

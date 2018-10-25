@@ -98,12 +98,16 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 			speed[1] = 0;
 			if (gameObject instanceof Movable)
 				x_pos += (((Movable) gameObject).getSpeed())[0];
+			if (gameObject instanceof DeathZone) {
+				teleport();
+				return false;
+			}
 			connectedObject = gameObject;
 			return true;
 		}
 		return false;
 	}
-
+	
 	public void resolveCollision(Collection<GameObject> gameObjects) {
 		for (GameObject gameObject : gameObjects) {
 			isConnected(gameObject);
@@ -136,8 +140,15 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 	public static int[] spawnPlayerPosition(PApplet sketcher) {
 		int w = (int) sketcher.random((float) (sketcher.width * 0.1), (float) (sketcher.width * 0.9));
-		int h = (int) sketcher.random((float) (sketcher.height * 0.1), (float) (sketcher.height * 0.9));
+		int h = (int) sketcher.random((float) (sketcher.height * 0.4), (float) (sketcher.height * 0.9));
 		return new int[] { w, h };
+	}
+	
+	public void teleport() {
+		int[] pos = spawnPlayerPosition(sketcher);
+		speed[1] = 10;
+		x_pos = pos[0];
+		y_pos = pos[1];
 	}
 
 	@Override

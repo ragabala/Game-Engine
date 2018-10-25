@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.hw2.sketcher.Color;
+import com.hw2.sketcher.DeathZone;
 import com.hw2.sketcher.Floor;
 import com.hw2.sketcher.GameObject;
 import com.hw2.sketcher.Movable;
@@ -96,7 +97,8 @@ class ClientResponseHandler implements Runnable {
 			while (true) {
 				// send all scene objects and player objects to all clients
 				for (GameObject gameObject : scene.values()) {
-					buffer.append(gameObject.toGameObjectString() + "~~");
+					if(!(gameObject instanceof DeathZone))
+						buffer.append(gameObject.toGameObjectString() + "~~");
 				}
 				// System.out.println("scene : "+playerMap.values().size());
 				for (Player gameObject : playerMap.values()) {
@@ -203,6 +205,7 @@ public class GameServer extends PApplet {
 				((Renderable) gameObject).render();
 			if (gameObject instanceof Movable)
 				((Movable) gameObject).step();
+				
 		}
 		// Player
 		for (Player player : playerMap.values()) {
@@ -213,20 +216,23 @@ public class GameServer extends PApplet {
 	}
 
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
-		float _temp_x = (float) (width * 0.9) / noOfPlatforms;
-		float _temp_y = (float) (height * 0.9) / noOfPlatforms;
-		for (int i = 0; i < noOfPlatforms; i++) {
+		float _temp_x = (float) (width * 0.7) / noOfPlatforms;
+		float _temp_y = (float) (height * 0.7) / noOfPlatforms;
+		for (int i = 1; i <= noOfPlatforms; i++) {
 			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
-			if (i == 0)
+			if (i == 1)
 				temp.setMotion(1, 0);
-			if (i == noOfPlatforms / 2)
+			if (i == 1+(noOfPlatforms / 2))
 				temp.setMotion(0, 1);
 			scene.put(temp.GAME_OBJECT_ID, temp);
 		}
 		Floor temp = new Floor(this, height, width);
 		scene.put(temp.GAME_OBJECT_ID, temp);
+		DeathZone deathZone = new DeathZone(height, width);
+		scene.put(deathZone.GAME_OBJECT_ID, deathZone);
+				
 	}
 
 	public static void main(String[] args) {

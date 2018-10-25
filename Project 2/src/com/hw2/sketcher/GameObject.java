@@ -11,7 +11,7 @@ public abstract class GameObject implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	public String GAME_OBJECT_ID = UUID.randomUUID().toString();
-	int x_pos, y_pos, length;
+	int x_pos, y_pos, length, breadth;
 	transient PApplet sketcher;
 
 
