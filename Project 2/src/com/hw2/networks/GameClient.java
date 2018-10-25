@@ -1,14 +1,13 @@
 package com.hw2.networks;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.hw2.sketcher.GameObject;
-import com.hw2.sketcher.Player;
 import com.hw2.sketcher.Renderable;
 
 import processing.core.PApplet;
@@ -67,16 +66,30 @@ class ClientReceiver implements Runnable {
 
 	@Override
 	public void run() {
-		ObjectInputStream inputStream;
+		DataInputStream inputStream;
 		try {
-			inputStream = new ObjectInputStream(socket.getInputStream());
+			inputStream = new DataInputStream(socket.getInputStream());
 			while (true) {
-				GameObject temp = (GameObject) inputStream.readObject();
-				temp.setSketcher(sketcher);
+				String input = inputStream.readUTF();
+				String[] gameObjectVals = input.split("~");
+				String gameGUID = gameObjectVals[1];
+				//System.out.println(input);
+				GameObject temp = null;
+				if(gameObjects.containsKey(gameGUID)) {
+					temp = gameObjects.get(gameGUID); 
+					temp.updateGameObject(gameObjectVals);
+				}
+				else
+				{
+					temp = GameObject.parseGameString(gameObjectVals);
+					temp.setSketcher(sketcher);
+					gameObjects.put(gameGUID, temp);
+				}
+
 				// This will add both player and other platform objects
-				gameObjects.put(temp.GAME_OBJECT_ID, temp);
+				
 			}
-		} catch (IOException | ClassNotFoundException e1) {
+		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 	}
@@ -135,12 +148,12 @@ class Game extends PApplet {
 	public void draw() {
 		// TODO Auto-generated method stub
 		background(0);
+		//System.out.println("gameObjects"+gameObjects.size());
 		for (GameObject gameObject : gameObjects.values()) {
 			if (gameObject instanceof Renderable)
 				((Renderable) gameObject).render();
-			int n = playerString.length();
-			playerString.replace(0, n, keys[0] + "~" + keys[1]);
 		}
+		playerString.replace(0, playerString.length(), keys[0] + "~" + keys[1]);
 
 	}
 

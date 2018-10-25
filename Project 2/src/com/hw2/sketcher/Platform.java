@@ -6,18 +6,18 @@ public class Platform extends GameObject implements Movable, Renderable {
 	private static final long serialVersionUID = 394432487520792007L;
 	int breadth;
 	boolean isMovable;
-	float[] speed = {0,0};
+	float[] speed = { 0, 0 };
 	int iter = 1, limit = 300;
 	Color color;
 
-	public Platform(PApplet sketcher, int x_pos, int y_pos, int length, int breadth) {
+	public Platform(PApplet sketcher, int x_pos, int y_pos, int length, int breadth, Color color) {
 		// TODO Auto-generated constructor stub
 		this.x_pos = x_pos;
 		this.y_pos = y_pos;
 		this.length = length;
 		this.breadth = breadth;
 		this.sketcher = sketcher;
-		this.color = Color.getRandomColor();
+		this.color = color;
 	}
 
 	public void setMotion(int x, int y) {
@@ -60,7 +60,7 @@ public class Platform extends GameObject implements Movable, Renderable {
 	@Override
 	public void render() {
 		// TODO Auto-generated method stub
-		sketcher.fill(color.r,color.g,color.b);
+		sketcher.fill(color.r, color.g, color.b);
 		sketcher.rect(x_pos, y_pos, length, breadth);
 
 	}
@@ -72,5 +72,28 @@ public class Platform extends GameObject implements Movable, Renderable {
 	}
 
 
+
+	@Override
+	public String toGameObjectString() {
+		// TODO Auto-generated method stub
+		return "PLATFORM~"+
+				GAME_OBJECT_ID+"~"+
+				x_pos+"~"+
+				y_pos+"~"+
+				length+"~"+
+				breadth+"~"+
+				color.r+"~"+
+				color.g+"~"+
+				color.b;
+		
+	}
 	
+	@Override
+	public void updateGameObject(String[] vals) {
+		// TODO Auto-generated method stub
+		x_pos = Integer.parseInt(vals[2]);
+		y_pos = Integer.parseInt(vals[3]);
+		
+	}
+
 }

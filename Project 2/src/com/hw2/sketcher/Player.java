@@ -129,4 +129,28 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		return new int[] { w, h };
 	}
 
+
+
+	@Override
+	public String toGameObjectString() {
+		// TODO Auto-generated method stub
+			return "PLAYER~"+
+				GAME_OBJECT_ID+"~"+
+				x_pos+"~"+
+				y_pos+"~"+
+				diameter+"~"+
+				color.r+"~"+
+				color.g+"~"+
+				color.b;
+		
+	}
+
+	@Override
+	public void updateGameObject(String[] vals) {
+		// TODO Auto-generated method stub
+		x_pos = Integer.parseInt(vals[2]);
+		y_pos = Integer.parseInt(vals[3]);
+		
+	}
+
 }
