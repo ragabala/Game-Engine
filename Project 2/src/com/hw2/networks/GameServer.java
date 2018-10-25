@@ -89,16 +89,19 @@ class ClientResponseHandler implements Runnable {
 		// TODO Auto-generated method stub
 		try {
 			DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+			StringBuffer buffer = new StringBuffer();
 			while (true) {
 				// System.out.println("scene : "+scene.values().size());
 				// send all scene objects and player objects to all clients
 				for (GameObject gameObject : scene.values()) {
-					outputStream.writeUTF(gameObject.toGameObjectString());
+					buffer.append(gameObject.toGameObjectString()+"~~");	
 				}
 				// System.out.println("scene : "+playerMap.values().size());
 				for (GameObject gameObject : playerMap.values()) {
-					outputStream.writeUTF(gameObject.toGameObjectString());
+					buffer.append(gameObject.toGameObjectString()+"~~");
 				}
+				outputStream.writeUTF(buffer.toString());
+				buffer.delete(0, buffer.length());
 				outputStream.flush();
 			}
 		} catch (IOException e) {
@@ -162,7 +165,7 @@ class ClientConnectionHandler implements Runnable {
  */
 public class GameServer extends PApplet {
 
-	static int noOfPlatforms = 2;
+	static int noOfPlatforms = 5;
 	static int width = 800, height = 800;
 	ConcurrentMap<String, GameObject> scene;
 	ConcurrentMap<String, Player> playerMap;
@@ -194,20 +197,17 @@ public class GameServer extends PApplet {
 		background(0);
 		// scene
 		for (GameObject gameObject : scene.values()) {
-			if (gameObject instanceof Renderable)
+		if (gameObject instanceof Renderable)
 				((Renderable) gameObject).render();
 			if (gameObject instanceof Movable)
 				((Movable) gameObject).step();
 		}
 		// Player
-		for (GameObject gameObject : playerMap.values()) {
-			((Renderable) gameObject).render();
-			((Movable) gameObject).step();
+		for (Player player : playerMap.values()) {
+			player.render();
+			player.step();
+			player.resolveCollision(scene.values());
 		}
-		// collision check
-		for (GameObject gameObject : scene.values())
-			for (GameObject player : playerMap.values())
-				((Player) player).isConnected(gameObject);
 	}
 
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
@@ -216,8 +216,6 @@ public class GameServer extends PApplet {
 		for (int i = 0; i < noOfPlatforms; i++) {
 			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
-			// for test purposes
-			y_pos = (int) (height * 0.5);
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
 			if (i == 0)
 				temp.setMotion(1, 0);

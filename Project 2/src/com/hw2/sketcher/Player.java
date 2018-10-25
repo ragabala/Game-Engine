@@ -1,6 +1,8 @@
 package com.hw2.sketcher;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -52,6 +54,8 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// TODO Auto-generated method stub
 
 		x_pos += x_dir * speed[0];
+		
+		// If the object is free falling
 		if (connectedObject == null) {
 			y_pos += speed[1];
 			if (speed[1] != 0)
@@ -62,6 +66,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 		// If the object Jumps when connected
 		if (y_dir != 0 && connectedObject != null) {
+			// If jumped give it an initial upward speed
 			speed[1] = -10;
 			connectedObject = null;
 		}
@@ -104,7 +109,12 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 			return true;
 		}
 		return false;
-
+	}
+	
+	public void resolveCollision(Collection<GameObject> gameObjects) {
+		for (GameObject gameObject : gameObjects) {
+			isConnected(gameObject);
+		}
 	}
 
 	public String getConnectedObjectID() {

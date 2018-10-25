@@ -69,23 +69,28 @@ class ClientReceiver implements Runnable {
 		DataInputStream inputStream;
 		try {
 			inputStream = new DataInputStream(socket.getInputStream());
+			GameObject temp = null;
 			while (true) {
-				String input = inputStream.readUTF();
-				String[] gameObjectVals = input.split("~");
-				String gameGUID = gameObjectVals[1];
-				//System.out.println(input);
-				GameObject temp = null;
-				if(gameObjects.containsKey(gameGUID)) {
-					temp = gameObjects.get(gameGUID); 
-					temp.updateGameObject(gameObjectVals);
-				}
-				else
-				{
-					temp = GameObject.parseGameString(gameObjectVals);
-					temp.setSketcher(sketcher);
-					gameObjects.put(gameGUID, temp);
-				}
+				String inputObtained = inputStream.readUTF();
+				String[] inputVals = inputObtained.split("~~");
+				for (String gameObjectInput : inputVals) {
+					String[] gameObjectVals = gameObjectInput.split("~");
+					String gameGUID = gameObjectVals[1];
+					//System.out.println(input);
+					
+					if(gameObjects.containsKey(gameGUID)) {
+						temp = gameObjects.get(gameGUID); 
+						temp.updateGameObject(gameObjectVals);
+					}
+					else
+					{
+						temp = GameObject.parseGameString(gameObjectVals);
+						temp.setSketcher(sketcher);
+						gameObjects.put(gameGUID, temp);
+					}
 
+				}
+				
 				// This will add both player and other platform objects
 				
 			}
