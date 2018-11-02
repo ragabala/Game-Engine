@@ -7,6 +7,7 @@ The project 1 jar file
 
 In order to take a look at the src, go to Project1/src 
 
+**Run all the commands inside the ./lib folder **
 For section 1,2,3:
 
 Run the following command
