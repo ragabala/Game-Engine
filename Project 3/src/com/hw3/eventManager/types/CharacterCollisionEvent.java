@@ -1,8 +1,7 @@
-package EventManager.types;
+package com.hw3.eventManager.types;
 
+import com.hw3.eventManager.Event;
 import com.hw3.sketcher.GameObject;
-
-import EventManager.Event;
 
 public class CharacterCollisionEvent extends Event {
 	

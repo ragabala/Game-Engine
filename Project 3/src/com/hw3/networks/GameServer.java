@@ -53,6 +53,8 @@ class ClientRequestHandler implements Runnable {
 				String playerVals[] = input.split("~");
 				int move_x = Integer.parseInt(playerVals[0]);
 				int move_y = Integer.parseInt(playerVals[1]);
+				// action is the new parameter that handles the pause/ record / playback features.
+				int action = Integer.parseInt(playerVals[2]);
 				if (player == null) {
 					// The player object gets created only during the first iteration.
 					int[] pos = Player.spawnPlayerPosition(sketcher);
@@ -209,12 +211,13 @@ public class GameServer extends PApplet {
 		{
 			for (GameObject gameObject : scene.values()) {
 				if (gameObject instanceof Movable)
-					((Movable) gameObject).step();
+					((Movable) gameObject).step(); // No events attached to the step of scene objects
 					
 			}
 			// Player
 			for (Player player : playerMap.values()) {
-				player.step();
+				// The events are generated withing the player class on step and collision
+				player.step(); 
 				player.resolveCollision(scene.values());
 			}
 			

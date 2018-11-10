@@ -46,6 +46,11 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public void step(int x_dir, int y_dir) {
 		// TODO Auto-generated method stub
 
+		if(x_dir == 1 || y_dir == 1)
+		{
+			// if the player has to be moved because of the 
+		}
+		
 		x_pos += x_dir * speed[0];
 
 		// If the object is free falling

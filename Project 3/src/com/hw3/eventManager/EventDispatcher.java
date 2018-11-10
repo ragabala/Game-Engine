@@ -1,4 +1,4 @@
-package EventManager;
+package com.hw3.eventManager;
 
 public class EventDispatcher {
 

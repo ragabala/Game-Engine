@@ -1,6 +1,6 @@
-package EventManager.types;
+package com.hw3.eventManager.types;
 
-import EventManager.Event;
+import com.hw3.eventManager.Event;
 
 public class UserInputEvent extends Event {
 

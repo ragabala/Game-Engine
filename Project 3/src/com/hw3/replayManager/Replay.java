@@ -1,9 +1,9 @@
-package ReplayManager;
+package com.hw3.replayManager;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-import EventManager.Event;
+import com.hw3.eventManager.Event;
 
 public class Replay {
 	

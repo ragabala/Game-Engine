@@ -119,7 +119,9 @@ class Game extends PApplet {
 		gameObjects = new ConcurrentHashMap<>();
 		// This player is just used for converting it into string
 		// The actual player creation happens in the server
-		playerString = new StringBuffer("0~0");
+		// Also we are adding a new parameter for adding the user actions
+		// like pause/unpause ; record/unrecord ; replay(various speeds) etc
+		playerString = new StringBuffer("0~0~0");
 		clock = new Clock();
 		lastTime = clock.getSystemTime();
 		Socket socket;
@@ -152,7 +154,7 @@ class Game extends PApplet {
 			if (gameObject instanceof Renderable)
 				((Renderable) gameObject).render();
 		}
-		playerString.replace(0, playerString.length(), keys[0] + "~" + keys[1]);
+		playerString.replace(0, playerString.length(), keys[0] + "~" + keys[1] + "~" + keys[2]);
 	}
 
 	@Override
@@ -164,6 +166,30 @@ class Game extends PApplet {
 			keys[0] = -1;
 		if (keyCode == 32)
 			keys[1] = 1;
+
+		// for pause, unpause, record, stoprecord, play 0.5x, play 1x, play 2x
+		// p : pause/ unpause
+		// r: record / stoprecord
+		// j: play 0.5x
+		// k: play 1x
+		// l: play 2x
+
+		// toggle Pause 'p|P'
+		if (keyCode == 80 || keyCode == 112)
+			keys[2] = 1;
+		// toggle Record 'r|R'
+		if (keyCode == 82 || keyCode == 114)
+			keys[2] = 2;
+		// play 0.5x 'j|J'
+		if (keyCode == 74 || keyCode == 106)
+			keys[2] = 3;
+		// play 1x 'k|K'
+		if (keyCode == 75 || keyCode == 107)
+			keys[2] = 4;
+		// play 2x 'l|L'
+		if (keyCode == 76 || keyCode == 108)
+			keys[2] = 5;
+
 	}
 
 	@Override
@@ -175,5 +201,8 @@ class Game extends PApplet {
 			keys[0] = 0;
 		if (keyCode == 32)
 			keys[1] = 0;
+		else if (keyCode == 80 || keyCode == 112 || keyCode == 82 || keyCode == 114 || keyCode == 74 || keyCode == 106
+				|| keyCode == 75 || keyCode == 107 || keyCode == 76 || keyCode == 108)
+			keys[2] = 0;
 	}
 }
