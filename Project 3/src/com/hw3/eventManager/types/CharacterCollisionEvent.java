@@ -9,8 +9,8 @@ public class CharacterCollisionEvent extends Event {
 	// This Event can have two intrested objects
 	// One is the Game objects that collides
 	// Other one is the Game object that is collided with
-	Player collider;
-	GameObject collided;
+	public Player collider;
+	public GameObject collided;
 
 	public CharacterCollisionEvent(Player collider, GameObject collided, long timestamp) {
 		// TODO Auto-generated constructor stub

@@ -9,11 +9,11 @@ public class Clock {
 	long pausedElapsed;
 	long nsInSec = 1000000000;
 	double nsPerTic;
-	double delta;
-
+	double delta = 1;
+	public static final int DEFAULT_TIC_SIZE = 60;
 	public Clock() {
 		// TODO Auto-generated constructor stub
-		ticSize = 60; // meaning 60 tics in a second // default
+		ticSize = DEFAULT_TIC_SIZE; // meaning 60 tics in a second // default
 		nsPerTic = nsInSec / ticSize; // 16666666.6667 is the default tic size
 	}
 
@@ -38,6 +38,7 @@ public class Clock {
 		// by dividing by the tic size :) :)
 		double diff = (getSystemTime() - lastUpdatedTime()) / nsPerTic;
 		delta += diff;
+		System.out.println(delta);
 		timeElapsed += diff;
 		if (paused)
 			pausedElapsed += diff;

@@ -107,7 +107,7 @@ class Game extends PApplet {
 	ConcurrentMap<String, GameObject> gameObjects;
 	StringBuffer playerString;
 	int playerDiameter = 30;
-	int[] keys = { 0, 0 };
+	int[] keys = { 0, 0 ,0 };
 	String playerUUID;
 	Clock clock;
 	long lastTime;
@@ -148,7 +148,6 @@ class Game extends PApplet {
 	public void draw() {
 		// TODO Auto-generated method stub
 		background(0);
-		System.out.println(System.currentTimeMillis());
 		// System.out.println("gameObjects"+gameObjects.size());
 		for (GameObject gameObject : gameObjects.values()) {
 			if (gameObject instanceof Renderable)

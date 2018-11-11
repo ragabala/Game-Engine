@@ -126,28 +126,32 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// TODO Auto-generated method stub
 
 	}
+	
+	
+	public void landOnObject(GameObject gameObject) {
+		speed[1] = 0;
+		if (gameObject instanceof Movable)
+			x_pos += (((Movable) gameObject).getSpeed())[0];
+		// The below statement makes sure the event gets created only when the object
+		// makes contact
+		if (connectedObject != gameObject) {
+			if (!Replay.isReplaying()) {
+				Event userInput = new CharacterCollisionEvent(this, gameObject, clock.getSystemTime());
+				Replay.addEvent(userInput);
+			}
+		}
+		connectedObject = gameObject;
+	}
 
 	public boolean isConnected(GameObject gameObject) {
 		// if object is connected
 		if (Math.abs(y_pos + diameter / 2 - gameObject.y_pos) <= speed[1] + 0.1 && x_pos >= gameObject.x_pos
 				&& x_pos <= gameObject.x_pos + gameObject.length) {
-			speed[1] = 0;
-			if (gameObject instanceof Movable)
-				x_pos += (((Movable) gameObject).getSpeed())[0];
 			if (gameObject instanceof DeathZone) {
 				teleport();
 				return false;
 			}
-
-			// The below statement makes sure the event gets created only when the object
-			// makes contact
-			if (connectedObject != gameObject) {
-				if (!Replay.isReplaying()) {
-					Event userInput = new CharacterCollisionEvent(this, gameObject, clock.getSystemTime());
-					Replay.addEvent(userInput);
-				}
-			}
-			connectedObject = gameObject;
+			landOnObject(gameObject);
 			return true;
 		}
 		return false;

@@ -23,7 +23,7 @@ public class Record {
 		recordingOn = false;
 		Event stop = new StopRecordingEvent(clock.getSystemTime());
 		// setting to default tic
-		clock.setTic(60);
+		clock.setTic(Clock.DEFAULT_TIC_SIZE);
 		Replay.events.add(stop);
 	}
 

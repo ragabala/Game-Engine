@@ -16,6 +16,7 @@ import com.hw3.actionmanager.Record;
 import com.hw3.actionmanager.Replay;
 import com.hw3.eventManager.Event;
 import com.hw3.eventManager.HandleEventDispatch;
+import com.hw3.eventManager.types.CharacterCollisionEvent;
 import com.hw3.eventManager.types.UserInputEvent;
 import com.hw3.sketcher.Color;
 import com.hw3.sketcher.DeathZone;
@@ -241,7 +242,7 @@ public class GameServer extends PApplet {
 				// when they match the event is trigged in the replay
 				// 60 tics is the default tic size for non replay mode
 				Event headEvent = Replay.events.peek();				
-				double ticsGame = Clock.getTics(clock.lastUpdatedTime(), clock.getSystemTime(), clock.getNsPerTic(60));
+				double ticsGame = Clock.getTics(clock.lastUpdatedTime(), clock.getSystemTime(), clock.getNsPerTic(Clock.DEFAULT_TIC_SIZE));
 				double ticsReplay = Clock.getTics(Record.recordingStartTime, headEvent.getTimestamp(),
 						clock.getNsPerTic(clock.ticSize));
 				if (abs((float) (ticsGame - ticsReplay)) < 1) {
@@ -251,7 +252,8 @@ public class GameServer extends PApplet {
 						e.player.setDir(e.x, e.y);
 					}
 					else if(Event.Type.CHARACTER_COLLSION== headEvent.getType()) {
-						
+						CharacterCollisionEvent e = (CharacterCollisionEvent)headEvent;
+						e.collider.landOnObject(e.collided);
 					}
 					else if(Event.Type.CHARACTER_DEATH == headEvent.getType()) {
 						
@@ -262,6 +264,7 @@ public class GameServer extends PApplet {
 					
 						
 					tock();
+					render();
 					// after executing the event can be removed
 					Replay.events.poll();
 					
@@ -271,7 +274,7 @@ public class GameServer extends PApplet {
 			// If not inreplay mode .. Then act normally
 			clock.setCurrentTime();
 			if (!clock.isPaused()) {
-				while (clock.getdeltaTime() >= 1) {
+				if (clock.getdeltaTime() >= 1) {
 					clock.decrementDelta();
 					tick();
 				}
@@ -294,9 +297,6 @@ public class GameServer extends PApplet {
 		for (Player player : playerMap.values()) {
 			player.render();
 		}
-		// This will update the deltaTime, total elapsedGameTime and pausedTime
-		// in the game time frame
-		clock.updateTime();
 	}
 
 	// tick takes care of updates to the objects
@@ -329,7 +329,7 @@ public class GameServer extends PApplet {
 		for (Player player : playerMap.values()) {
 			// The events are generated within the player class on step and collision
 			player.step(player.dir_x, player.dir_y);
-			//player.resolveCollision(scene.values());
+			player.resolveCollision(scene.values());
 		}
 	}
 	
@@ -343,9 +343,9 @@ public class GameServer extends PApplet {
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
 			if (i == 1)
-				temp.setMotion(0, 1);
+				temp.setMotion(0, 10);
 			if (i == 1 + (noOfPlatforms / 2))
-				temp.setMotion(1, 0);
+				temp.setMotion(10, 0);
 			scene.put(temp.GAME_OBJECT_ID, temp);
 		}
 		Floor temp = new Floor(this, height, width);

@@ -13,7 +13,7 @@ public class Replay {
 
 	// This Queue will store all the intrested events whenever
 	// The Replay button is pressed
-	// And will stop holding the events when the stop button is clicked
+	// And will stop holding the eventsclock when the stop button is clicked
 
 	// if this is on, then all the actions are recorded
 	// Since Replays, Pause and unPause happens at server level
@@ -44,11 +44,11 @@ public class Replay {
 	public static void startReplay(Clock clock, int action, Collection<GameObject> scene, Collection<Player> players) {
 		replayingOn = true;
 		if (action == 3) {
-			clock.setTic(30);
+			clock.setTic(Clock.DEFAULT_TIC_SIZE / 2);
 		} else if (action == 4) {
-			clock.setTic(60);
+			clock.setTic(Clock.DEFAULT_TIC_SIZE);
 		} else if (action == 5) {
-			clock.setTic(90);
+			clock.setTic(Clock.DEFAULT_TIC_SIZE * 2);
 		}
 		clock.setCurrentTime();
 		

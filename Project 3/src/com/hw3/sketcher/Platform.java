@@ -98,8 +98,8 @@ public class Platform extends GameObject implements Movable, Renderable {
 		// TODO Auto-generated method stub
 		x_pos = Integer.parseInt(vals[2]);
 		y_pos = Integer.parseInt(vals[3]);
-		speed[0] = Integer.parseInt(vals[9]);
-		speed[1] = Integer.parseInt(vals[10]);
+		speed[0] = Float.parseFloat(vals[9]);
+		speed[1] = Float.parseFloat(vals[10]);
 		
 	}
 
