@@ -1,5 +1,7 @@
 package com.hw3.sketcher;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
+
 import processing.core.PApplet;
 
 public class Platform extends GameObject implements Movable, Renderable {
@@ -84,7 +86,10 @@ public class Platform extends GameObject implements Movable, Renderable {
 				breadth+"~"+
 				color.r+"~"+
 				color.g+"~"+
-				color.b;
+				color.b+"~"+
+				speed[0]+"~"+
+				speed[1]
+				;
 		
 	}
 	
@@ -93,6 +98,8 @@ public class Platform extends GameObject implements Movable, Renderable {
 		// TODO Auto-generated method stub
 		x_pos = Integer.parseInt(vals[2]);
 		y_pos = Integer.parseInt(vals[3]);
+		speed[0] = Integer.parseInt(vals[9]);
+		speed[1] = Integer.parseInt(vals[10]);
 		
 	}
 

@@ -3,20 +3,32 @@ package com.hw3.sketcher;
 import java.io.Serializable;
 import java.util.Collection;
 
+import com.hw3.actionmanager.Clock;
+import com.hw3.actionmanager.Record;
+import com.hw3.actionmanager.Replay;
+import com.hw3.eventManager.Event;
+import com.hw3.eventManager.HandleEventDispatch;
+import com.hw3.eventManager.types.CharacterCollisionEvent;
+import com.hw3.eventManager.types.UserInputEvent;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 
 public class Player extends GameObject implements Movable, Renderable, Serializable {
 	private static final long serialVersionUID = 1L;
-	float[] speed = { 10, 0 };
+	public float[] speed = { 10, 0 };
 	int diameter;
 	float gravity = 0.2f;
 	Color color;
-	transient GameObject connectedObject = null;
+	public transient GameObject connectedObject = null;
 	int move_x, move_y;
+	public int dir_x, dir_y;
 	boolean isAlive;
+	public int prev_x,prev_y;
+	Clock clock;
+	HandleEventDispatch dispatchHandler;
 
-	public Player(PApplet sketcher, int x, int y, int diameter, Color color) {
+	public Player(PApplet sketcher, int x, int y, int diameter, Color color, Clock clock) {
 		this.x_pos = x;
 		this.y_pos = y;
 		this.diameter = diameter;
@@ -24,12 +36,23 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		speed[1] = 10; // this makes the player to reach the ground initially
 		this.color = color;
 		this.isAlive = true;
+		this.clock = clock;
+		dispatchHandler = new HandleEventDispatch();
 	}
 
+	
+	
+	
 	public void setMovement(int x, int y) {
 		move_x = x;
 		move_y = y;
 	}
+	
+	public void setDir(int x, int y) {
+		dir_x = x;
+		dir_y = y;
+	}
+	
 
 	@Override
 	public void render() {
@@ -45,14 +68,20 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	@Override
 	public void step(int x_dir, int y_dir) {
 		// TODO Auto-generated method stub
-
-		if(x_dir == 1 || y_dir == 1)
-		{
-			// if the player has to be moved because of the 
+		// Adding an event only when pressed for the first time
+		// If There is a change in the direction
+		// Then it should be recorded as a event
+		if (x_dir != prev_x || y_dir != prev_y) {
+			// if recording is on, we have to add this event
+			// and if the replay is off we add this event to the replay
+			if (Record.isRecording() && !Replay.isReplaying()) {
+				// This action creates a user input type event
+				Event userInput = new UserInputEvent(x_dir, y_dir, this, clock.getSystemTime());
+				Replay.addEvent(userInput);
+			}
 		}
-		
-		x_pos += x_dir * speed[0];
 
+		x_pos += x_dir * speed[0];
 		// If the object is free falling
 		if (connectedObject == null) {
 			y_pos += speed[1];
@@ -61,7 +90,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		} else {
 			y_pos = connectedObject.y_pos - diameter / 2;
 		}
-
+		
 		// If the object Jumps when connected
 		if (y_dir != 0 && connectedObject != null) {
 			// If jumped give it an initial upward speed
@@ -75,7 +104,9 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 				speed[1] = 5;
 			}
 		}
-		wrap();
+		wrap();		
+		prev_x = x_dir;
+		prev_y = y_dir;
 	}
 
 	@Override
@@ -107,12 +138,21 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 				teleport();
 				return false;
 			}
+
+			// The below statement makes sure the event gets created only when the object
+			// makes contact
+			if (connectedObject != gameObject) {
+				if (!Replay.isReplaying()) {
+					Event userInput = new CharacterCollisionEvent(this, gameObject, clock.getSystemTime());
+					Replay.addEvent(userInput);
+				}
+			}
 			connectedObject = gameObject;
 			return true;
 		}
 		return false;
 	}
-	
+
 	public void resolveCollision(Collection<GameObject> gameObjects) {
 		for (GameObject gameObject : gameObjects) {
 			isConnected(gameObject);
@@ -148,7 +188,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		int h = (int) sketcher.random((float) (sketcher.height * 0.4), (float) (sketcher.height * 0.9));
 		return new int[] { w, h };
 	}
-	
+
 	public void teleport() {
 		int[] pos = spawnPlayerPosition(sketcher);
 		speed[1] = 10;

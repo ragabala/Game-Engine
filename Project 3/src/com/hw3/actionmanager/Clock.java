@@ -1,15 +1,15 @@
-package com.hw3.timemanager;
+package com.hw3.actionmanager;
 
 public class Clock {
 
-	int ticSize;
+	public int ticSize;
 	boolean paused;
 	long currentTime;
 	long timeElapsed;
 	long pausedElapsed;
-	long nsPerTic;
 	long nsInSec = 1000000000;
-	long delta;
+	double nsPerTic;
+	double delta;
 
 	public Clock() {
 		// TODO Auto-generated constructor stub
@@ -33,12 +33,22 @@ public class Clock {
 		return currentTime;
 	}
 
-	public void deltaTime() {
-		delta += (System.nanoTime() - lastUpdatedTime()) / nsPerTic;
+	public void updateTime() {
+		// diff computes time in the game time frame 
+		// by dividing by the tic size :) :)
+		double diff = (getSystemTime() - lastUpdatedTime()) / nsPerTic;
+		delta += diff;
+		timeElapsed += diff;
+		if (paused)
+			pausedElapsed += diff;
 	}
 
-	public long getDelta() {
+	public double getdeltaTime() {
 		return delta;
+	}
+
+	public void decrementDelta() {
+		delta--;
 	}
 
 	public void pause() {
@@ -54,6 +64,14 @@ public class Clock {
 		// thereby making the frame move faster
 		this.ticSize = ticSize;
 		nsPerTic = nsInSec / ticSize;
+	}
+	
+	public static double getTics(long startTime, long endTime, double nsPerTic) {
+		return (endTime - startTime) / nsPerTic;
+	}
+	
+	public double getNsPerTic(int ticSize) {
+		return nsInSec/ticSize;
 	}
 
 }

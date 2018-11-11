@@ -11,7 +11,7 @@ public abstract class GameObject implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	public String GAME_OBJECT_ID = UUID.randomUUID().toString();
-	int x_pos, y_pos, length, breadth;
+	public int x_pos, y_pos, length, breadth;
 	transient PApplet sketcher;
 
 
@@ -35,7 +35,7 @@ public abstract class GameObject implements Serializable {
 			int r = Integer.parseInt(vals[5]);
 			int g = Integer.parseInt(vals[6]);
 			int b = Integer.parseInt(vals[7]);
-			return new Player(null, x_pos, y_pos, diameter, new Color(r, g, b));
+			return new Player(null, x_pos, y_pos, diameter, new Color(r, g, b), null);
 
 		} else if (vals[0].equals("PLATFORM")) {
 			int x_pos = Integer.parseInt(vals[2]);

@@ -7,9 +7,9 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.hw3.actionmanager.Clock;
 import com.hw3.sketcher.GameObject;
 import com.hw3.sketcher.Renderable;
-import com.hw3.timemanager.Clock;
 
 import processing.core.PApplet;
 
@@ -162,9 +162,9 @@ class Game extends PApplet {
 		// TODO Auto-generated method stub
 		if (keyCode == RIGHT)
 			keys[0] = 1;
-		if (keyCode == LEFT)
+		else if (keyCode == LEFT)
 			keys[0] = -1;
-		if (keyCode == 32)
+		else if (keyCode == 32)
 			keys[1] = 1;
 
 		// for pause, unpause, record, stoprecord, play 0.5x, play 1x, play 2x
@@ -175,19 +175,19 @@ class Game extends PApplet {
 		// l: play 2x
 
 		// toggle Pause 'p|P'
-		if (keyCode == 80 || keyCode == 112)
+		else if (keyCode == 80 || keyCode == 112)
 			keys[2] = 1;
 		// toggle Record 'r|R'
-		if (keyCode == 82 || keyCode == 114)
+		else if (keyCode == 82 || keyCode == 114)
 			keys[2] = 2;
 		// play 0.5x 'j|J'
-		if (keyCode == 74 || keyCode == 106)
+		else if (keyCode == 74 || keyCode == 106)
 			keys[2] = 3;
 		// play 1x 'k|K'
-		if (keyCode == 75 || keyCode == 107)
+		else if (keyCode == 75 || keyCode == 107)
 			keys[2] = 4;
 		// play 2x 'l|L'
-		if (keyCode == 76 || keyCode == 108)
+		else if (keyCode == 76 || keyCode == 108)
 			keys[2] = 5;
 
 	}
@@ -197,9 +197,9 @@ class Game extends PApplet {
 		// TODO Auto-generated method stub
 		if (keyCode == RIGHT)
 			keys[0] = 0;
-		if (keyCode == LEFT)
+		else if (keyCode == LEFT)
 			keys[0] = 0;
-		if (keyCode == 32)
+		else if (keyCode == 32)
 			keys[1] = 0;
 		else if (keyCode == 80 || keyCode == 112 || keyCode == 82 || keyCode == 114 || keyCode == 74 || keyCode == 106
 				|| keyCode == 75 || keyCode == 107 || keyCode == 76 || keyCode == 108)
