@@ -2,11 +2,8 @@ package com.hw3.actionmanager;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
-import com.hw3.eventManager.Event;
 import com.hw3.sketcher.GameObject;
 import com.hw3.sketcher.Player;
 
@@ -29,8 +26,6 @@ public class Replay {
 	// This is used for setting up the initial Positions during replay
 	public static Map<String, String> positionMap = new HashMap<>();
 
-
-
 	public static boolean isReplaying() {
 		return replayingOn;
 	}
@@ -49,7 +44,7 @@ public class Replay {
 		} else if (action == 5) {
 			clock.setTic(Clock.DEFAULT_TIC_SIZE * 2);
 		}
-		clock.setCurrentTime();
+		clock.setLastToCurrent();
 		
 		// Set the initial position of each and every player and scene objects when the replay started
 		for (Player player : players) {

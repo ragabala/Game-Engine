@@ -204,18 +204,22 @@ public class GameServer extends PApplet {
 		// TODO Auto-generated constructor stub
 		this.scene = scene;
 		this.playerMap = playerMap;
-		clock = new Clock(); // Default tic is at 60 meaning 60 frames in a sec
+		// Default tic is at 60 meaning 60 frames in a sec
 	}
 
 	@Override
 	public void setup() {
+		System.out.println("setup");
+		clock = new Clock();
 		createScene(scene);
 		new Thread(new ClientConnectionHandler(this, scene, playerMap, clock)).start();
+
 	}
 
 	@Override
 	public void settings() {
 		// TODO Auto-generated method stub
+		System.out.println("settings");
 		size(800, 800);
 	}
 
@@ -236,14 +240,17 @@ public class GameServer extends PApplet {
 			// and compare it with the tics in the events
 			// when they match the event is trigged in the replay
 			// 60 tics is the default tic size for non replay mode
-					
+
 			Event headEvent = Record.events.peek();
-			//System.out.println("Events size" +Record.events.size());
-			double ticsGame = Clock.getTics(clock.lastUpdatedTime(), clock.getSystemTime(), Clock.DEFAULT_TIC_SIZE);
-			double ticsReplay = Clock.getTics(Record.recordingStartTime, headEvent.getTimestamp(), clock.ticSize);
-			
-			// If the current game loop surpasses the event tics
-			if (ticsGame  >= ticsReplay ) {
+			// System.out.println("Events size" +Record.events.size());
+			double ticsGame = Clock.getTics(clock.lastUpdatedTime(), clock.getSystemTime(), 1000/ Clock.DEFAULT_TIC_SIZE);
+			double ticsReplay = Clock.getTics(Record.recordingStartTime, headEvent.getTimestamp(), 1000/clock.ticSize);
+
+			// If the current game loop surpasses the event tics play the event
+			if (ticsGame >= ticsReplay) {
+				System.out.println("Game Tics"+ticsGame);
+				System.out.println("Replay Tics"+ticsReplay);
+				System.out.println("Event : "+headEvent.getType());
 				// This means it is time to execute the current Event
 				if (Event.Type.USER_INPUT == headEvent.getType()) {
 					UserInputEvent e = ((UserInputEvent) headEvent);
@@ -268,16 +275,20 @@ public class GameServer extends PApplet {
 		} else {
 			// If not inreplay mode .. Then act normally
 			clock.setCurrentTime();
+			clock.updateDelta();
+			clock.setLastToCurrent();
+
 			if (!clock.isPaused()) {
-				while (clock.getdeltaTime() > clock.ticSize) {
+				while (clock.getdeltaTime() >= clock.getTimeStep()) {
+					// System.out.println(clock.getdeltaTime() );
 					clock.decrementDelta();
 					tick();
 				}
-				
-				
 			}
+			else
+				clock.updateDelta();
 			render();
-			clock.updateTime();
+
 		}
 
 	}
@@ -302,8 +313,9 @@ public class GameServer extends PApplet {
 	public void tick() {
 		for (GameObject gameObject : scene.values()) {
 			if (gameObject instanceof Movable)
+			{
 				((Movable) gameObject).step(); // No events attached to the step of scene objects
-
+			}
 		}
 		// Player
 		for (Player player : playerMap.values()) {
@@ -335,7 +347,7 @@ public class GameServer extends PApplet {
 		for (int i = 1; i <= noOfPlatforms; i++) {
 			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
-			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
+			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor(), clock);
 			if (i == 1)
 				temp.setMotion(0, 1);
 			if (i == 1 + (noOfPlatforms / 2))

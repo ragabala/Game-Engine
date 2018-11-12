@@ -16,7 +16,7 @@ import processing.core.PConstants;
 
 public class Player extends GameObject implements Movable, Renderable, Serializable {
 	private static final long serialVersionUID = 1L;
-	public float[] speed = { 20, 0 };
+	public double[] speed = { 0, 0 };
 	int diameter;
 	float gravity = 0.9f;
 	Color color;
@@ -24,9 +24,8 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	int move_x, move_y;
 	public int dir_x, dir_y;
 	boolean isAlive;
-	public int prev_x,prev_y;
+	public int prev_x, prev_y;
 	Clock clock;
-	HandleEventDispatch dispatchHandler;
 
 	public Player(PApplet sketcher, int x, int y, int diameter, Color color, Clock clock) {
 		this.x_pos = x;
@@ -34,25 +33,22 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		this.diameter = diameter;
 		this.sketcher = sketcher;
 		speed[1] = 20; // this makes the player to reach the ground initially
+		speed[0] = 0; // this will be set with timestep later
 		this.color = color;
 		this.isAlive = true;
 		this.clock = clock;
-		dispatchHandler = new HandleEventDispatch();
+
 	}
 
-	
-	
-	
 	public void setMovement(int x, int y) {
 		move_x = x;
 		move_y = y;
 	}
-	
+
 	public void setDir(int x, int y) {
 		dir_x = x;
 		dir_y = y;
 	}
-	
 
 	@Override
 	public void render() {
@@ -81,7 +77,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 			}
 		}
 
-		x_pos += x_dir * speed[0];
+		x_pos += x_dir * clock.getTimeStep() * 0.5;
 		// If the object is free falling
 		if (connectedObject == null) {
 			y_pos += speed[1];
@@ -90,7 +86,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		} else {
 			y_pos = connectedObject.y_pos - diameter / 2;
 		}
-		
+
 		// If the object Jumps when connected
 		if (y_dir != 0 && connectedObject != null) {
 			// If jumped give it an initial upward speed
@@ -104,7 +100,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 				speed[1] = 10;
 			}
 		}
-		wrap();		
+		wrap();
 		prev_x = x_dir;
 		prev_y = y_dir;
 	}
@@ -126,8 +122,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// TODO Auto-generated method stub
 
 	}
-	
-	
+
 	public void landOnObject(GameObject gameObject) {
 		speed[1] = 0;
 		if (gameObject instanceof Movable)
@@ -135,7 +130,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// The below statement makes sure the event gets created only when the object
 		// makes contact
 		if (connectedObject != gameObject) {
-			if ( Record.isRecording() && !Replay.isReplaying()) {
+			if (Record.isRecording() && !Replay.isReplaying()) {
 				Event userInput = new CharacterCollisionEvent(this, gameObject, clock.getSystemTime());
 				Record.addEvent(userInput);
 			}
@@ -174,7 +169,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	}
 
 	@Override
-	public float[] getSpeed() {
+	public double[] getSpeed() {
 		// TODO Auto-generated method stub
 		return speed;
 	}
