@@ -173,10 +173,11 @@ class Game extends PApplet {
 		// k: play 1x
 		// l: play 2x
 
-		// toggle Pause 'p|P'
+		// Pause 'p|P'
 		else if (keyCode == 80 || keyCode == 112)
 			keys[2] = 1;
-		// toggle Record 'r|R'
+		
+		// Record 'r|R'
 		else if (keyCode == 82 || keyCode == 114)
 			keys[2] = 2;
 		// play 0.5x 'j|J'
@@ -185,10 +186,18 @@ class Game extends PApplet {
 		// play 1x 'k|K'
 		else if (keyCode == 75 || keyCode == 107)
 			keys[2] = 4;
+		
 		// play 2x 'l|L'
 		else if (keyCode == 76 || keyCode == 108)
 			keys[2] = 5;
 
+		// unpause 'u|U'
+		else if (keyCode == 85 || keyCode == 117)
+			keys[2] = 6;
+		
+		//stop record  's|S'
+		else if (keyCode == 83 || keyCode == 115)
+			keys[2] = 7;
 	}
 
 	@Override
@@ -200,8 +209,9 @@ class Game extends PApplet {
 			keys[0] = 0;
 		else if (keyCode == 32)
 			keys[1] = 0;
-		else if (keyCode == 80 || keyCode == 112 || keyCode == 82 || keyCode == 114 || keyCode == 74 || keyCode == 106
-				|| keyCode == 75 || keyCode == 107 || keyCode == 76 || keyCode == 108)
+		//else if (  keyCode == 80 || keyCode == 112 || keyCode == 82 || keyCode == 114 || keyCode == 74 || keyCode == 106
+			//	|| keyCode == 75 || keyCode == 107 || keyCode == 76 || keyCode == 108 || keyCode == 85 || keyCode == 117 
+				//|| keyCode == 83 || keyCode == 115)
 			keys[2] = 0;
 	}
 }

@@ -11,22 +11,18 @@ public class ManageAction {
 			ConcurrentMap<String, Player> playerMap) {
 		// Pausing
 		if (action == 1)
-			if (clock.isPaused())
-				clock.unPause();
-			else
-				clock.pause();
-
+			clock.pause();
 		// recording
 		else if (action == 2)
-			if (Record.isRecording()) {
-				Record.stopRecording(clock);
-			} else {
-				Record.record(clock.getSystemTime(), playerMap.values(), scene.values());
-			}
+			Record.record(clock.getSystemTime(), playerMap.values(), scene.values());
 		// set replay speed
-		else if (action >= 3 && action <= 5) {
+		else if (action >= 3 && action <= 5)
 			Replay.startReplay(clock, action, scene.values(), playerMap.values());
-		}
+		else if (action == 6)
+			clock.unPause();
+		else if (action == 7)
+			Record.stopRecording(clock);
+		;
 
 	}
 

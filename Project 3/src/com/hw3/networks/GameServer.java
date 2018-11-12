@@ -8,14 +8,11 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
-
 import com.hw3.actionmanager.Clock;
 import com.hw3.actionmanager.ManageAction;
 import com.hw3.actionmanager.Record;
 import com.hw3.actionmanager.Replay;
 import com.hw3.eventManager.Event;
-import com.hw3.eventManager.HandleEventDispatch;
 import com.hw3.eventManager.types.CharacterCollisionEvent;
 import com.hw3.eventManager.types.UserInputEvent;
 import com.hw3.sketcher.Color;
@@ -232,52 +229,52 @@ public class GameServer extends PApplet {
 
 		// This will just replay all the events according the the timelines
 
-		if (Replay.isReplaying()) {
-			if (Replay.events.isEmpty())
-				Replay.stopReplay();
-			else {
-				// If the game is in recording mode, we do not update the current Time
-				// This allows us to compute lastUpdatedTime and currentTime tics
-				// and compare it with the tics in the events
-				// when they match the event is trigged in the replay
-				// 60 tics is the default tic size for non replay mode
-				Event headEvent = Replay.events.peek();				
-				double ticsGame = Clock.getTics(clock.lastUpdatedTime(), clock.getSystemTime(), clock.getNsPerTic(Clock.DEFAULT_TIC_SIZE));
-				double ticsReplay = Clock.getTics(Record.recordingStartTime, headEvent.getTimestamp(),
-						clock.getNsPerTic(clock.ticSize));
-				if (abs((float) (ticsGame - ticsReplay)) < 1) {
-					// This means it is time to execute the current Event
-					if(Event.Type.USER_INPUT == headEvent.getType()) {
-						UserInputEvent e =((UserInputEvent)headEvent); 
-						e.player.setDir(e.x, e.y);
-					}
-					else if(Event.Type.CHARACTER_COLLSION== headEvent.getType()) {
-						CharacterCollisionEvent e = (CharacterCollisionEvent)headEvent;
-						e.collider.landOnObject(e.collided);
-					}
-					else if(Event.Type.CHARACTER_DEATH == headEvent.getType()) {
-						
-					}
-					else if(Event.Type.CHARACTER_SPAWN == headEvent.getType()) {
-						
-					}
+		if (Replay.isReplaying() && !Record.events.isEmpty()) {
+
+			// If the game is in recording mode, we do not update the current Time
+			// This allows us to compute lastUpdatedTime and currentTime tics
+			// and compare it with the tics in the events
+			// when they match the event is trigged in the replay
+			// 60 tics is the default tic size for non replay mode
 					
-						
-					tock();
-					render();
-					// after executing the event can be removed
-					Replay.events.poll();
-					
+			Event headEvent = Record.events.peek();
+			//System.out.println("Events size" +Record.events.size());
+			double ticsGame = Clock.getTics(clock.lastUpdatedTime(), clock.getSystemTime(), Clock.DEFAULT_TIC_SIZE);
+			double ticsReplay = Clock.getTics(Record.recordingStartTime, headEvent.getTimestamp(), clock.ticSize);
+			
+			// If the current game loop surpasses the event tics
+			if (ticsGame  >= ticsReplay ) {
+				// This means it is time to execute the current Event
+				if (Event.Type.USER_INPUT == headEvent.getType()) {
+					UserInputEvent e = ((UserInputEvent) headEvent);
+					e.player.setDir(e.x, e.y);
+				} else if (Event.Type.CHARACTER_COLLSION == headEvent.getType()) {
+					CharacterCollisionEvent e = (CharacterCollisionEvent) headEvent;
+					e.collider.landOnObject(e.collided);
+				} else if (Event.Type.CHARACTER_DEATH == headEvent.getType()) {
+
+				} else if (Event.Type.CHARACTER_SPAWN == headEvent.getType()) {
+
 				}
+
+				// after executing the event can be removed
+				Record.events.poll();
+
 			}
+
+			tock();
+			render();
+
 		} else {
 			// If not inreplay mode .. Then act normally
 			clock.setCurrentTime();
 			if (!clock.isPaused()) {
-				if (clock.getdeltaTime() >= 1) {
+				while (clock.getdeltaTime() > clock.ticSize) {
 					clock.decrementDelta();
 					tick();
 				}
+				
+				
 			}
 			render();
 			clock.updateTime();
@@ -315,8 +312,7 @@ public class GameServer extends PApplet {
 			player.resolveCollision(scene.values());
 		}
 	}
-	
-	
+
 	// tock takes care of updates to the objects
 	// from replay function only
 	public void tock() {
@@ -332,8 +328,6 @@ public class GameServer extends PApplet {
 			player.resolveCollision(scene.values());
 		}
 	}
-	
-	
 
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
 		float _temp_x = (float) (width * 0.7) / noOfPlatforms;
@@ -343,9 +337,9 @@ public class GameServer extends PApplet {
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
 			if (i == 1)
-				temp.setMotion(0, 10);
+				temp.setMotion(0, 1);
 			if (i == 1 + (noOfPlatforms / 2))
-				temp.setMotion(10, 0);
+				temp.setMotion(1, 0);
 			scene.put(temp.GAME_OBJECT_ID, temp);
 		}
 		Floor temp = new Floor(this, height, width);

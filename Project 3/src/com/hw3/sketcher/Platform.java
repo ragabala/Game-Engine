@@ -1,7 +1,5 @@
 package com.hw3.sketcher;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
-
 import processing.core.PApplet;
 
 public class Platform extends GameObject implements Movable, Renderable {
@@ -9,7 +7,8 @@ public class Platform extends GameObject implements Movable, Renderable {
 	int breadth;
 	boolean isMovable;
 	float[] speed = { 0, 0 };
-	int iter = 1, limit = 300;
+	int velocity = 5;
+	int iter = 1, limit = 300 / velocity;
 	Color color;
 
 	public Platform(PApplet sketcher, int x_pos, int y_pos, int length, int breadth, Color color) {
@@ -23,8 +22,8 @@ public class Platform extends GameObject implements Movable, Renderable {
 	}
 
 	public void setMotion(int x, int y) {
-		speed[0] = x;
-		speed[1] = y;
+		speed[0] = x * velocity;
+		speed[1] = y * velocity;
 		isMovable = true;
 	}
 
@@ -73,26 +72,14 @@ public class Platform extends GameObject implements Movable, Renderable {
 		return speed;
 	}
 
-
-
 	@Override
 	public String toGameObjectString() {
 		// TODO Auto-generated method stub
-		return "PLATFORM~"+
-				GAME_OBJECT_ID+"~"+
-				x_pos+"~"+
-				y_pos+"~"+
-				length+"~"+
-				breadth+"~"+
-				color.r+"~"+
-				color.g+"~"+
-				color.b+"~"+
-				speed[0]+"~"+
-				speed[1]
-				;
-		
+		return "PLATFORM~" + GAME_OBJECT_ID + "~" + x_pos + "~" + y_pos + "~" + length + "~" + breadth + "~" + color.r
+				+ "~" + color.g + "~" + color.b + "~" + speed[0] + "~" + speed[1];
+
 	}
-	
+
 	@Override
 	public void updateGameObject(String[] vals) {
 		// TODO Auto-generated method stub
@@ -100,7 +87,7 @@ public class Platform extends GameObject implements Movable, Renderable {
 		y_pos = Integer.parseInt(vals[3]);
 		speed[0] = Float.parseFloat(vals[9]);
 		speed[1] = Float.parseFloat(vals[10]);
-		
+
 	}
 
 }

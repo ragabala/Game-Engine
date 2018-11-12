@@ -16,9 +16,9 @@ import processing.core.PConstants;
 
 public class Player extends GameObject implements Movable, Renderable, Serializable {
 	private static final long serialVersionUID = 1L;
-	public float[] speed = { 10, 0 };
+	public float[] speed = { 20, 0 };
 	int diameter;
-	float gravity = 0.2f;
+	float gravity = 0.9f;
 	Color color;
 	public transient GameObject connectedObject = null;
 	int move_x, move_y;
@@ -33,7 +33,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		this.y_pos = y;
 		this.diameter = diameter;
 		this.sketcher = sketcher;
-		speed[1] = 10; // this makes the player to reach the ground initially
+		speed[1] = 20; // this makes the player to reach the ground initially
 		this.color = color;
 		this.isAlive = true;
 		this.clock = clock;
@@ -77,7 +77,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 			if (Record.isRecording() && !Replay.isReplaying()) {
 				// This action creates a user input type event
 				Event userInput = new UserInputEvent(x_dir, y_dir, this, clock.getSystemTime());
-				Replay.addEvent(userInput);
+				Record.addEvent(userInput);
 			}
 		}
 
@@ -94,14 +94,14 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// If the object Jumps when connected
 		if (y_dir != 0 && connectedObject != null) {
 			// If jumped give it an initial upward speed
-			speed[1] = -10;
+			speed[1] = -20;
 			connectedObject = null;
 		}
 		// If We move horizontally and trip over the edge
 		if (x_dir != 0 && connectedObject != null) {
 			if (!isConnected(connectedObject)) {
 				connectedObject = null;
-				speed[1] = 5;
+				speed[1] = 10;
 			}
 		}
 		wrap();		
@@ -135,9 +135,9 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// The below statement makes sure the event gets created only when the object
 		// makes contact
 		if (connectedObject != gameObject) {
-			if (!Replay.isReplaying()) {
+			if ( Record.isRecording() && !Replay.isReplaying()) {
 				Event userInput = new CharacterCollisionEvent(this, gameObject, clock.getSystemTime());
-				Replay.addEvent(userInput);
+				Record.addEvent(userInput);
 			}
 		}
 		connectedObject = gameObject;

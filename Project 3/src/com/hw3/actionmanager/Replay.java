@@ -1,6 +1,7 @@
 package com.hw3.actionmanager;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -22,15 +23,13 @@ public class Replay {
 
 	public static boolean replayingOn;
 
-	public static Queue<Event> events = new LinkedList<>();
+
 
 	// Map between GUID and the position of the Objects
 	// This is used for setting up the initial Positions during replay
-	public static Map<String, String> positionMap;
+	public static Map<String, String> positionMap = new HashMap<>();
 
-	public static void addEvent(Event event) {
-		events.add(event);
-	}
+
 
 	public static boolean isReplaying() {
 		return replayingOn;
@@ -59,7 +58,9 @@ public class Replay {
 		}
 		for (GameObject gameObject : scene) {
 			if(positionMap.containsKey(gameObject.GAME_OBJECT_ID))
+			{	
 				gameObject.updateGameObject(positionMap.get(gameObject.GAME_OBJECT_ID).split("~"));
+			}
 		}
 		
 		
