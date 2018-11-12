@@ -67,16 +67,6 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// Adding an event only when pressed for the first time
 		// If There is a change in the direction
 		// Then it should be recorded as a event
-		if (x_dir != prev_x || y_dir != prev_y) {
-			// if recording is on, we have to add this event
-			// and if the replay is off we add this event to the replay
-			if (Record.isRecording() && !Replay.isReplaying()) {
-				// This action creates a user input type event
-				Event userInput = new UserInputEvent(x_dir, y_dir, this, clock.getSystemTime());
-				Record.addEvent(userInput);
-			}
-		}
-
 		x_pos += x_dir * clock.getTimeStep() * 0.5;
 		// If the object is free falling
 		if (connectedObject == null) {

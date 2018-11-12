@@ -28,8 +28,10 @@ public class Record {
 	}
 
 	public static void stopRecording(Clock clock) {
-		recordingOn = false;
+		if(!recordingOn)
+			return;
 		Event stop = new StopRecordingEvent(clock.getSystemTime());
+		recordingOn = false;
 		// setting to default tic
 		clock.setTic(Clock.DEFAULT_TIC_SIZE);
 		events.add(stop);

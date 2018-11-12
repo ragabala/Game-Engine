@@ -55,6 +55,9 @@ class ClientRequestHandler implements Runnable {
 		// TODO Auto-generated method stub
 		int port = socket.getPort();
 		Player player = null;
+		
+		int prev_x = 0, prev_y = 0;
+		
 		try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 			// This player object is corresponding to one thread
 			// (i.e) one particular player
@@ -64,6 +67,7 @@ class ClientRequestHandler implements Runnable {
 				String playerVals[] = input.split("~");
 				int move_x = Integer.parseInt(playerVals[0]);
 				int move_y = Integer.parseInt(playerVals[1]);
+
 				// action is the new parameter that handles the pause/ record / playback
 				// features.
 				int action = Integer.parseInt(playerVals[2]);
@@ -76,7 +80,14 @@ class ClientRequestHandler implements Runnable {
 					// add the player to the map with the UUID sent from the client
 					playerMap.put(player.GAME_OBJECT_ID, player);
 				}
+				if(prev_x!=move_x || prev_y!=move_y)
+				{
+					ManageAction.addInputEvent(move_x, move_y, player, clock);
+				}
 				player.setMovement(move_x, move_y);
+				prev_x = move_x;
+				prev_y = move_y;
+				
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -232,9 +243,11 @@ public class GameServer extends PApplet {
 		// update Block - Just updates are based on clock
 
 		// This will just replay all the events according the the timelines
+		
+		if(Record.events.isEmpty())
+			Replay.stopReplay();
 
-		if (Replay.isReplaying() && !Record.events.isEmpty()) {
-
+		if (Replay.isReplaying()) {
 			// If the game is in recording mode, we do not update the current Time
 			// This allows us to compute lastUpdatedTime and currentTime tics
 			// and compare it with the tics in the events
