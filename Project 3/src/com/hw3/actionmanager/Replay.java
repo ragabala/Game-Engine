@@ -33,6 +33,7 @@ public class Replay {
 	// this should be called when all the events are removed
 	public static void stopReplay() {
 		replayingOn = false;
+		Clock.setTic(Clock.DEFAULT_TIC_SIZE);
 	}
 
 	public static void startReplay(int action, Collection<GameObject> scene, Collection<Player> players) {

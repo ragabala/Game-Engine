@@ -3,20 +3,17 @@ package com.hw3.sketcher;
 import java.io.Serializable;
 import java.util.Collection;
 
-import com.hw3.actionmanager.Clock;
 import com.hw3.actionmanager.Record;
 import com.hw3.actionmanager.Replay;
 import com.hw3.eventManager.Event;
-import com.hw3.eventManager.HandleEventDispatch;
 import com.hw3.eventManager.types.CharacterCollisionEvent;
-import com.hw3.eventManager.types.UserInputEvent;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
 
 public class Player extends GameObject implements Movable, Renderable, Serializable {
 	private static final long serialVersionUID = 1L;
-	public double[] speed = { 0, 0 };
+	public double[] speed = { 20, 0 };
 	int diameter;
 	float gravity = 0.9f;
 	Color color;
@@ -31,7 +28,6 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		this.diameter = diameter;
 		this.sketcher = sketcher;
 		speed[1] = 20; // this makes the player to reach the ground initially
-		speed[0] = 0; // this will be set with timestep later
 		this.color = color;
 		this.isAlive = true;
 	}
@@ -68,7 +64,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// Adding an event only when pressed for the first time
 		// If There is a change in the direction
 		// Then it should be recorded as a event
-		x_pos += x_dir * Clock.getTimeStep() * 0.5;
+		x_pos += x_dir * speed[0];
 		// If the object is free falling
 		if (connectedObject == null) {
 			y_pos += speed[1];
@@ -117,7 +113,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public void landOnObject(GameObject gameObject) {
 		speed[1] = 0;
 		if (gameObject instanceof Movable)
-			x_pos += (((Movable) gameObject).getSpeed())[0] * Clock.getTimeStep() / 8;
+			x_pos += (((Movable) gameObject).getSpeed())[0] ;
 		// The below statement makes sure the event gets created only when the object
 		// makes contact for the first time
 		if (connectedObject != gameObject) {

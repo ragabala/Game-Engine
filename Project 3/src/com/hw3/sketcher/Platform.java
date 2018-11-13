@@ -1,7 +1,5 @@
 package com.hw3.sketcher;
 
-import com.hw3.actionmanager.Clock;
-
 import processing.core.PApplet;
 
 public class Platform extends GameObject implements Movable, Renderable {
@@ -24,8 +22,8 @@ public class Platform extends GameObject implements Movable, Renderable {
 	}
 
 	public void setMotion(int x, int y) {
-		speed[0] = x;
-		speed[1] = y;
+		speed[0] = x * velocity;
+		speed[1] = y * velocity;
 		isMovable = true;
 	}
 
@@ -39,8 +37,8 @@ public class Platform extends GameObject implements Movable, Renderable {
 		// TODO Auto-generated method stub
 		if (!isMovable)
 			return;
-		x_pos += speed[0] * Clock.getTimeStep() / 8;
-		y_pos += speed[1] * Clock.getTimeStep() / 8;
+		x_pos += speed[0] ;
+		y_pos += speed[1] ;
 		if ((x_pos < 0.1 * sketcher.width && speed[0] < 0) || (x_pos > 0.6 * sketcher.width && speed[0] > 0))
 			speed[0] *= -1;
 		if ((y_pos < 0.1 * sketcher.height && speed[1] < 0) || (y_pos > 0.6 * sketcher.height && speed[1] > 0))
