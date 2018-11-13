@@ -252,7 +252,7 @@ public class GameServer extends PApplet {
 			
 			if(Record.events.isEmpty())
 			{
-				Replay.stopReplay();
+				Replay.stopReplay(scene.values(), playerMap.values());
 				flag = true;
 			}
 			if (Replay.isReplaying()) {

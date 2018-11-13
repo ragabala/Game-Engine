@@ -3,7 +3,7 @@ package com.hw3.eventManager.types;
 
 import java.util.Collection;
 
-import com.hw3.actionmanager.Replay;
+import com.hw3.actionmanager.Record;
 import com.hw3.eventManager.Event;
 import com.hw3.sketcher.GameObject;
 import com.hw3.sketcher.Movable;
@@ -15,11 +15,11 @@ public class StartRecordingEvent extends Event{
 		super(Event.Type.START_RECORDING);
 		// TODO Auto-generated constructor stub
 		for (Player player : players) {
-			Replay.positionMap.put(player.GAME_OBJECT_ID, player.toGameObjectString());
+			Record.positionMap.put(player.GAME_OBJECT_ID, player.toGameObjectString());
 		}
 		for (GameObject gameObject : scene) {
 			if(gameObject instanceof Movable)
-				Replay.positionMap.put(gameObject.GAME_OBJECT_ID, gameObject.toGameObjectString());
+				Record.positionMap.put(gameObject.GAME_OBJECT_ID, gameObject.toGameObjectString());
 		}
 		
 		

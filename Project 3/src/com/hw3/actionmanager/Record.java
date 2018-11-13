@@ -1,7 +1,9 @@
 package com.hw3.actionmanager;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 import com.hw3.eventManager.Event;
@@ -15,6 +17,7 @@ public class Record {
 	public static boolean recordingOn;
 	public static long recordingStartTime;
 	public static Queue<Event> events = new LinkedList<>();
+	public static Map<String, String> positionMap = new HashMap<>();
 	
 	public static void addEvent(Event event) {
 		events.add(event);
