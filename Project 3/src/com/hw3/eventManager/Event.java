@@ -1,5 +1,8 @@
 package com.hw3.eventManager;
 
+import com.hw3.actionmanager.Clock;
+import com.hw3.actionmanager.Record;
+
 public class Event {
 
 	public enum Type {
@@ -15,18 +18,18 @@ public class Event {
 	public boolean handled;
 	// The `timestamp` that is saved should be real time
 	// so that Event can be converted for any timeline.
-	private long timestamp;
+	private double tics;
 
-	protected Event(Type type, long timestamp) {
+	protected Event(Type type) {
 		// TODO Auto-generated constructor stub
 		this.type = type;
-		this.timestamp = timestamp;
+		this.tics = Clock.getTics(Record.recordingStartTime, Clock.getSystemTime());
 	}
 
 	public Type getType() {
 		return type;
 	}
 	
-	public long getTimestamp() {return timestamp;}
+	public double getTics() {return tics;}
 
 }

@@ -25,9 +25,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public int dir_x, dir_y;
 	boolean isAlive;
 	public int prev_x, prev_y;
-	Clock clock;
-
-	public Player(PApplet sketcher, int x, int y, int diameter, Color color, Clock clock) {
+	public Player(PApplet sketcher, int x, int y, int diameter, Color color) {
 		this.x_pos = x;
 		this.y_pos = y;
 		this.diameter = diameter;
@@ -36,8 +34,6 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		speed[0] = 0; // this will be set with timestep later
 		this.color = color;
 		this.isAlive = true;
-		this.clock = clock;
-
 	}
 
 	public void setMovement(int x, int y) {
@@ -72,7 +68,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// Adding an event only when pressed for the first time
 		// If There is a change in the direction
 		// Then it should be recorded as a event
-		x_pos += x_dir * clock.getTimeStep() * 0.5;
+		x_pos += x_dir * Clock.getTimeStep() * 0.5;
 		// If the object is free falling
 		if (connectedObject == null) {
 			y_pos += speed[1];
@@ -121,12 +117,12 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public void landOnObject(GameObject gameObject) {
 		speed[1] = 0;
 		if (gameObject instanceof Movable)
-			x_pos += (((Movable) gameObject).getSpeed())[0] * clock.getTimeStep() / 8;
+			x_pos += (((Movable) gameObject).getSpeed())[0] * Clock.getTimeStep() / 8;
 		// The below statement makes sure the event gets created only when the object
-		// makes contact
+		// makes contact for the first time
 		if (connectedObject != gameObject) {
 			if (Record.isRecording() && !Replay.isReplaying()) {
-				Event userInput = new CharacterCollisionEvent(this, gameObject, clock.getSystemTime());
+				Event userInput = new CharacterCollisionEvent(this, gameObject);
 				Record.addEvent(userInput);
 			}
 		}

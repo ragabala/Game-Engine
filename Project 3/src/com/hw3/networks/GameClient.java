@@ -109,9 +109,6 @@ class Game extends PApplet {
 	int playerDiameter = 30;
 	int[] keys = { 0, 0 ,0 };
 	String playerUUID;
-	Clock clock;
-	long lastTime;
-
 	@Override
 	public void setup() {
 		// TODO Auto-generated method stub
@@ -122,8 +119,6 @@ class Game extends PApplet {
 		// Also we are adding a new parameter for adding the user actions
 		// like pause/unpause ; record/unrecord ; replay(various speeds) etc
 		playerString = new StringBuffer("0~0~0");
-		clock = new Clock();
-		lastTime = clock.getSystemTime();
 		Socket socket;
 		try {
 			socket = new Socket("127.0.0.1", 15001);

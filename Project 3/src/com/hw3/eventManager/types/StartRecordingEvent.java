@@ -11,8 +11,8 @@ import com.hw3.sketcher.Player;
 
 public class StartRecordingEvent extends Event{
 
-	public StartRecordingEvent(Collection<GameObject> scene, Collection<Player> players,long timestamp) {
-		super(Event.Type.START_RECORDING, timestamp);
+	public StartRecordingEvent(Collection<GameObject> scene, Collection<Player> players) {
+		super(Event.Type.START_RECORDING);
 		// TODO Auto-generated constructor stub
 		for (Player player : players) {
 			Replay.positionMap.put(player.GAME_OBJECT_ID, player.toGameObjectString());

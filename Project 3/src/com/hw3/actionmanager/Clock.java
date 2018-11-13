@@ -2,44 +2,52 @@ package com.hw3.actionmanager;
 
 public class Clock {
 
-	
-	public static final long START_TIME = System.currentTimeMillis(); 
-	public int ticSize;
-	boolean paused;
-	long currentTime;
-	long lastTime;
-	double timeStep;
-	long timeElapsed;
-	long pausedElapsed;
-	double delta = 0;
+	static final long START_TIME = System.currentTimeMillis();
+	static boolean paused;
+	static long currentTime;
+	static long replayStartTime;
+	static long lastTime;
+	static long timeElapsed;
+	static long pausedElapsed;
+	static double delta = 0;
 	public static final int DEFAULT_TIC_SIZE = 40;
-	public Clock() {
+	static int ticSize = DEFAULT_TIC_SIZE;
+	static double timeStep = 1000/ ticSize;
+	
+	private Clock() {
 		// TODO Auto-generated constructor stub
-		setTic(DEFAULT_TIC_SIZE);// meaning 60 tics in a second // default
 	}
 
-	public boolean isPaused() {
+	public static boolean isPaused() {
 		return paused;
 	}
+	
+	public static void setReplayStartTime() {
+		replayStartTime = getSystemTime();
+	}
 
-	public long getSystemTime() {
+	public static long getReplayTime() {
+		return replayStartTime;
+	}
+	
+	public static long getSystemTime() {
 		return System.currentTimeMillis() - START_TIME;
 	}
 
-	public void setCurrentTime() {
+	public static void setCurrentTime() {
 		currentTime = getSystemTime();
 	}
-	
-	public void setLastToCurrent() {
+
+	public static void setLastToCurrent() {
 		lastTime = currentTime;
 	}
 
-	public long lastUpdatedTime() {
+	public static long lastUpdatedTime() {
 		return lastTime;
 	}
 
-	public void updateDelta() {
-		// diff computes time in the game time frame 
+	public static void updateDelta() {
+		// diff computes time in the game time frame
 		// by dividing by the tic size :) :)
 		double diff = currentTime - lastUpdatedTime();
 		delta += diff;
@@ -48,37 +56,36 @@ public class Clock {
 			pausedElapsed += diff;
 	}
 
-	public double getdeltaTime() {
+	public static double getdeltaTime() {
 		return delta;
 	}
 
-	public void decrementDelta() {
-		delta-=timeStep;
+	public static void decrementDelta() {
+		delta -= timeStep;
 	}
 
-	public void pause() {
+	public static void pause() {
 		paused = true;
 	}
 
-	public void unPause() {
+	public static void unPause() {
 		paused = false;
 	}
 
-	public void setTic(int ticSize) {
+	public static void setTic(int tics) {
 		// If the tic size increases the nsPerTic decrease
 		// thereby making the frame move faster
-		this.ticSize = ticSize;
-		timeStep = 1000/ticSize;
+		ticSize = tics;
+		timeStep = 1000 / ticSize;
 
 	}
-	
-	public double getTimeStep() {
+
+	public static double getTimeStep() {
 		return timeStep; // 1000 is number of ms in a sec
 	}
-	
-	public static double getTics(long startTime, long endTime, double ticSize) {
-		return (endTime - startTime) / ticSize;
-	}
 
+	public static double getTics(long startTime, long endTime) {
+		return (endTime - startTime) / timeStep;
+	}
 
 }

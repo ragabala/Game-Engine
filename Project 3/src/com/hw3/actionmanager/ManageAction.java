@@ -9,30 +9,30 @@ import com.hw3.sketcher.Player;
 
 public class ManageAction {
 
-	public static void manage(int action, Clock clock, ConcurrentMap<String, GameObject> scene,
+	public static void manage(int action, ConcurrentMap<String, GameObject> scene,
 			ConcurrentMap<String, Player> playerMap) {
 		// Pausing
 		if (action == 1)
-			clock.pause();
+			Clock.pause();
 		// recording
 		else if (action == 2)
-			Record.record(clock.getSystemTime(), playerMap.values(), scene.values());
+			Record.record(playerMap.values(), scene.values());
 		// set replay speed
 		else if (action >= 3 && action <= 5)
-			Replay.startReplay(clock, action, scene.values(), playerMap.values());
+			Replay.startReplay(action, scene.values(), playerMap.values());
 		else if (action == 6)
-			clock.unPause();
+			Clock.unPause();
 		else if (action == 7)
-			Record.stopRecording(clock);
+			Record.stopRecording();
 		
 	}
 	
-	public static void addInputEvent(int x, int y, Player player,Clock clock) {
+	public static void addInputEvent(int x, int y, Player player) {
 			// if recording is on, we have to add this event
 			// and if the replay is off we add this event to the replay
 			if (Record.isRecording() && !Replay.isReplaying()) {
 				// This action creates a user input type event
-				Event userInput = new UserInputEvent(x, y, player, clock.getSystemTime());
+				Event userInput = new UserInputEvent(x, y, player);
 				Record.addEvent(userInput);
 			}
 

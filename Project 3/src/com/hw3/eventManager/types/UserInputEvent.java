@@ -10,8 +10,8 @@ public class UserInputEvent extends Event {
 	public int pos_x, pos_y;
 	public Player player;
 
-	public UserInputEvent(int x, int y, Player player, long timestamp) {
-		super(Event.Type.USER_INPUT, timestamp);
+	public UserInputEvent(int x, int y, Player player) {
+		super(Event.Type.USER_INPUT);
 		// TODO Auto-generated constructor stub
 		this.x = x;
 		this.y = y;

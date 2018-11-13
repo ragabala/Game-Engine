@@ -12,9 +12,9 @@ public class CharacterCollisionEvent extends Event {
 	public Player collider;
 	public GameObject collided;
 
-	public CharacterCollisionEvent(Player collider, GameObject collided, long timestamp) {
+	public CharacterCollisionEvent(Player collider, GameObject collided) {
 		// TODO Auto-generated constructor stub
-		super(Event.Type.CHARACTER_COLLSION, timestamp);
+		super(Event.Type.CHARACTER_COLLSION);
 		this.collider = collider;
 		this.collided = collided;
 	}

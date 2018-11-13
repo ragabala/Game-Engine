@@ -12,9 +12,8 @@ public class Platform extends GameObject implements Movable, Renderable {
 	int velocity = 5;
 	int iter = 1, limit = 300 / velocity;
 	Color color;
-	Clock clock;
 
-	public Platform(PApplet sketcher, int x_pos, int y_pos, int length, int breadth, Color color, Clock clock) {
+	public Platform(PApplet sketcher, int x_pos, int y_pos, int length, int breadth, Color color) {
 		// TODO Auto-generated constructor stub
 		this.x_pos = x_pos;
 		this.y_pos = y_pos;
@@ -22,7 +21,6 @@ public class Platform extends GameObject implements Movable, Renderable {
 		this.breadth = breadth;
 		this.sketcher = sketcher;
 		this.color = color;
-		this.clock = clock;
 	}
 
 	public void setMotion(int x, int y) {
@@ -41,8 +39,8 @@ public class Platform extends GameObject implements Movable, Renderable {
 		// TODO Auto-generated method stub
 		if (!isMovable)
 			return;
-		x_pos += speed[0] * clock.getTimeStep() / 8;
-		y_pos += speed[1] * clock.getTimeStep() / 8;
+		x_pos += speed[0] * Clock.getTimeStep() / 8;
+		y_pos += speed[1] * Clock.getTimeStep() / 8;
 		if ((x_pos < 0.1 * sketcher.width && speed[0] < 0) || (x_pos > 0.6 * sketcher.width && speed[0] > 0))
 			speed[0] *= -1;
 		if ((y_pos < 0.1 * sketcher.height && speed[1] < 0) || (y_pos > 0.6 * sketcher.height && speed[1] > 0))

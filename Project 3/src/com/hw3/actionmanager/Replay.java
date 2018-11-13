@@ -35,21 +35,24 @@ public class Replay {
 		replayingOn = false;
 	}
 
-	public static void startReplay(Clock clock, int action, Collection<GameObject> scene, Collection<Player> players) {
+	public static void startReplay(int action, Collection<GameObject> scene, Collection<Player> players) {
+		if(replayingOn)
+			return;
 		replayingOn = true;
 		if (action == 3) {
-			clock.setTic(Clock.DEFAULT_TIC_SIZE / 2);
+			Clock.setTic(Clock.DEFAULT_TIC_SIZE / 2);
 		} else if (action == 4) {
-			clock.setTic(Clock.DEFAULT_TIC_SIZE);
+			Clock.setTic(Clock.DEFAULT_TIC_SIZE);
 		} else if (action == 5) {
-			clock.setTic(Clock.DEFAULT_TIC_SIZE * 2);
+			Clock.setTic(Clock.DEFAULT_TIC_SIZE * 2);
 		}
-		clock.setLastToCurrent();
 		
 		// Set the initial position of each and every player and scene objects when the replay started
 		for (Player player : players) {
-			if(positionMap.containsKey(player.GAME_OBJECT_ID))
+			if(positionMap.containsKey(player.GAME_OBJECT_ID)) {
 				player.updateGameObject(positionMap.get(player.GAME_OBJECT_ID).split("~"));
+				player.connectedObject = null;
+			}
 		}
 		for (GameObject gameObject : scene) {
 			if(positionMap.containsKey(gameObject.GAME_OBJECT_ID))
@@ -57,7 +60,6 @@ public class Replay {
 				gameObject.updateGameObject(positionMap.get(gameObject.GAME_OBJECT_ID).split("~"));
 			}
 		}
-		
 		
 	}
 

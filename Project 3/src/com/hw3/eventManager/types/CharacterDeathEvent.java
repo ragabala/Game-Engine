@@ -10,9 +10,9 @@ public class CharacterDeathEvent extends Event {
 	
 	GameObject deadObject;
 	
-	public CharacterDeathEvent(GameObject deadObject, long timestamp) {
+	public CharacterDeathEvent(GameObject deadObject) {
 		// TODO Auto-generated constructor stub
-		super(Event.Type.CHARACTER_DEATH, timestamp);
+		super(Event.Type.CHARACTER_DEATH);
 		this.deadObject = deadObject;
 	}
 

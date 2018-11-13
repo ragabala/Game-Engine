@@ -35,7 +35,7 @@ public abstract class GameObject implements Serializable {
 			int r = Integer.parseInt(vals[5]);
 			int g = Integer.parseInt(vals[6]);
 			int b = Integer.parseInt(vals[7]);
-			return new Player(null, x_pos, y_pos, diameter, new Color(r, g, b), null);
+			return new Player(null, x_pos, y_pos, diameter, new Color(r, g, b));
 
 		} else if (vals[0].equals("PLATFORM")) {
 			int x_pos = Integer.parseInt(vals[2]);
@@ -45,7 +45,7 @@ public abstract class GameObject implements Serializable {
 			int r = Integer.parseInt(vals[6]);
 			int g = Integer.parseInt(vals[7]);
 			int b = Integer.parseInt(vals[8]);
-			return new Platform(null, x_pos, y_pos, length, breadth, new Color(r, g, b), null);
+			return new Platform(null, x_pos, y_pos, length, breadth, new Color(r, g, b));
 
 		} else if (vals[0].equals("FLOOR")) {
 			int height = Integer.parseInt(vals[2]);

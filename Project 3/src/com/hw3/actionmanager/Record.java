@@ -20,20 +20,22 @@ public class Record {
 		events.add(event);
 	}
 
-	public static void record(long recordingStartTimeVal, Collection<Player> players, Collection<GameObject> scene) {
-		recordingStartTime = recordingStartTimeVal;
-		System.out.println("Recording started at : "+recordingStartTimeVal);
-		new StartRecordingEvent(scene, players, recordingStartTimeVal);
+	public static void record(Collection<Player> players, Collection<GameObject> scene) {
+		if(recordingOn)
+			return;
+		new StartRecordingEvent(scene, players);
 		recordingOn = true;
+		recordingStartTime = Clock.getSystemTime();
+		System.out.println("Recording started at : "+recordingStartTime);
 	}
 
-	public static void stopRecording(Clock clock) {
+	public static void stopRecording() {
 		if(!recordingOn)
 			return;
-		Event stop = new StopRecordingEvent(clock.getSystemTime());
+		Event stop = new StopRecordingEvent();
 		recordingOn = false;
 		// setting to default tic
-		clock.setTic(Clock.DEFAULT_TIC_SIZE);
+		Clock.setTic(Clock.DEFAULT_TIC_SIZE);
 		events.add(stop);
 	}
 
