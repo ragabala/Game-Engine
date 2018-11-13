@@ -49,6 +49,11 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		dir_x = x;
 		dir_y = y;
 	}
+	
+	public void setPos(int x, int y) {
+		x_pos = x;
+		y_pos = y;
+	}
 
 	@Override
 	public void render() {
@@ -116,7 +121,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public void landOnObject(GameObject gameObject) {
 		speed[1] = 0;
 		if (gameObject instanceof Movable)
-			x_pos += (((Movable) gameObject).getSpeed())[0];
+			x_pos += (((Movable) gameObject).getSpeed())[0] * clock.getTimeStep() / 8;
 		// The below statement makes sure the event gets created only when the object
 		// makes contact
 		if (connectedObject != gameObject) {

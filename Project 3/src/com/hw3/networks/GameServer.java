@@ -268,6 +268,7 @@ public class GameServer extends PApplet {
 				if (Event.Type.USER_INPUT == headEvent.getType()) {
 					UserInputEvent e = ((UserInputEvent) headEvent);
 					e.player.setDir(e.x, e.y);
+					//e.player.setPos(e.pos_x, e.pos_y);
 				} else if (Event.Type.CHARACTER_COLLSION == headEvent.getType()) {
 					CharacterCollisionEvent e = (CharacterCollisionEvent) headEvent;
 					e.collider.landOnObject(e.collided);
