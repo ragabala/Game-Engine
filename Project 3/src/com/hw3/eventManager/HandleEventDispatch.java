@@ -30,20 +30,19 @@ public class HandleEventDispatch implements EventListener {
 	}
 	
 	
-	public boolean onStopRecording(StopRecordingEvent event) {
-		
+	public boolean onStopRecording(StopRecordingEvent event) {	
 		return true;
 	}
 	
 		
 	public boolean onCharacterCollision(CharacterCollisionEvent event) {
-		
+		event.collider.landOnObject(event.collided);
 		return true;	
 	}
 	
 	public boolean onUserInput(UserInputEvent event) {
-		int x = event.x;
-		int y = event.y;
+		event.player.setDir(event.x, event.y);
+		event.player.setPos(event.pos_x, event.pos_y);
 		return true;	
 	}
 	

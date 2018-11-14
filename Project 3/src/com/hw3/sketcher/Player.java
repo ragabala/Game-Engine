@@ -21,7 +21,6 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	int move_x, move_y;
 	public int dir_x, dir_y;
 	boolean isAlive;
-	public int prev_x, prev_y;
 	public Player(PApplet sketcher, int x, int y, int diameter, Color color) {
 		this.x_pos = x;
 		this.y_pos = y;
@@ -88,8 +87,6 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 			}
 		}
 		wrap();
-		prev_x = x_dir;
-		prev_y = y_dir;
 	}
 
 	@Override

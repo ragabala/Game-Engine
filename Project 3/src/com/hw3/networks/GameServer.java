@@ -13,8 +13,8 @@ import com.hw3.actionmanager.ManageAction;
 import com.hw3.actionmanager.Record;
 import com.hw3.actionmanager.Replay;
 import com.hw3.eventManager.Event;
-import com.hw3.eventManager.types.CharacterCollisionEvent;
-import com.hw3.eventManager.types.UserInputEvent;
+import com.hw3.eventManager.EventListener;
+import com.hw3.eventManager.HandleEventDispatch;
 import com.hw3.sketcher.Color;
 import com.hw3.sketcher.DeathZone;
 import com.hw3.sketcher.Floor;
@@ -53,9 +53,9 @@ class ClientRequestHandler implements Runnable {
 		// TODO Auto-generated method stub
 		int port = socket.getPort();
 		Player player = null;
-		
+
 		int prev_x = 0, prev_y = 0;
-		
+
 		try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 			// This player object is corresponding to one thread
 			// (i.e) one particular player
@@ -78,14 +78,13 @@ class ClientRequestHandler implements Runnable {
 					// add the player to the map with the UUID sent from the client
 					playerMap.put(player.GAME_OBJECT_ID, player);
 				}
-				if(prev_x!=move_x || prev_y!=move_y)
-				{
+				if (prev_x != move_x || prev_y != move_y) {
 					ManageAction.addInputEvent(move_x, move_y, player);
 				}
 				player.setMovement(move_x, move_y);
 				prev_x = move_x;
 				prev_y = move_y;
-				
+
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -201,6 +200,7 @@ public class GameServer extends PApplet {
 	ConcurrentMap<String, GameObject> scene;
 	ConcurrentMap<String, Player> playerMap;
 	boolean flag = true;
+	EventListener eventListener = new HandleEventDispatch();
 
 	/*
 	 * Let us construct 5 platforms of different colors three platforms has to move
@@ -235,10 +235,8 @@ public class GameServer extends PApplet {
 		// Time should be a factor in updating the steps for the player and the platform
 		// clock updates reffered from
 		// https://en.wikibooks.org/wiki/Guide_to_Game_Development/Theory/Game_logic/Setting_up_ticks_and_frames
-		// update Block - Just updates are based on clock
-
+		// update Block - Just updates are based on cloc
 		// This will just replay all the events according the the timelines
-		
 		Clock.setCurrentTime();
 		Clock.updateDelta();
 		Clock.setLastToCurrent();
@@ -246,48 +244,30 @@ public class GameServer extends PApplet {
 			Clock.setReplayStartTime();
 			flag = false;
 		}
-		
+
 		while (Clock.getdeltaTime() >= Clock.getTimeStep()) {
 			Clock.decrementDelta();
-			
-			if(Record.events.isEmpty())
-			{
+			if (Record.events.isEmpty()) {
 				Replay.stopReplay(scene.values(), playerMap.values());
 				flag = true;
 			}
 			if (Replay.isReplaying()) {
 				Event headEvent = Record.events.peek();
 				double ticsGame = Clock.getTics(Clock.getReplayTime(), Clock.getSystemTime());
-				
-				if(ticsGame >= headEvent.getTics()) {
-					//System.out.println(ticsGame);
-					if (Event.Type.USER_INPUT == headEvent.getType()) {
-						UserInputEvent e = ((UserInputEvent) headEvent);
-						e.player.setDir(e.x, e.y);
-						e.player.setPos(e.pos_x, e.pos_y);
-					} else if (Event.Type.CHARACTER_COLLSION == headEvent.getType()) {
-						CharacterCollisionEvent e = (CharacterCollisionEvent) headEvent;
-						e.collider.landOnObject(e.collided);
-					} else if (Event.Type.CHARACTER_DEATH == headEvent.getType()) {
-
-					} else if (Event.Type.CHARACTER_SPAWN == headEvent.getType()) {
-
-					}
+				if (ticsGame >= headEvent.getTics()) {
+					eventListener.onEvent(headEvent);
 					Record.events.remove();
 				}
-				
-				tock();
+
 			}
-			else {
-				if(!Clock.isPaused())
-					tick();
-			}	
-			
+		
+			if (!Clock.isPaused() || Replay.isReplaying())
+				tick();
+
 		}
 		render();
 	}
-	
-	
+
 	public void render() {
 		// Render Block
 		background(0);
@@ -308,26 +288,14 @@ public class GameServer extends PApplet {
 	public void tick() {
 		for (GameObject gameObject : scene.values())
 			if (gameObject instanceof Movable)
-				((Movable) gameObject).step(); // No events attached to the step of scene objects		
-		// Player
-		for (Player player : playerMap.values()) {
-			// The events are generated within the player class on step and collision
-			player.step();
-			player.resolveCollision(scene.values());
-		}
-	}
-
-	// tock takes care of updates to the objects
-	// from replay function only
-	public void tock() {
-		for (GameObject gameObject : scene.values()) 
-			if (gameObject instanceof Movable)
 				((Movable) gameObject).step(); // No events attached to the step of scene objects
-		
 		// Player
 		for (Player player : playerMap.values()) {
 			// The events are generated within the player class on step and collision
-			player.step(player.dir_x, player.dir_y);
+			if (Replay.isReplaying())
+				player.step(player.dir_x, player.dir_y);
+			else
+				player.step();
 			player.resolveCollision(scene.values());
 		}
 	}
