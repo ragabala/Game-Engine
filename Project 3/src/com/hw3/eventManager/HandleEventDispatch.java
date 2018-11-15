@@ -6,6 +6,8 @@ import com.hw3.eventManager.types.CharacterSpawnEvent;
 import com.hw3.eventManager.types.StartRecordingEvent;
 import com.hw3.eventManager.types.StopRecordingEvent;
 import com.hw3.eventManager.types.UserInputEvent;
+import com.hw3.sketcher.Player;
+import com.hw3.sketcher.SpawnPoint;
 
 public class HandleEventDispatch implements EventListener {
 
@@ -47,10 +49,15 @@ public class HandleEventDispatch implements EventListener {
 	}
 	
 	public boolean onCharacterDeath(CharacterDeathEvent event) {
+		
 		return true;	
 	}
 	
 	public boolean onCharacterSpawn(CharacterSpawnEvent event) {
+		Player player = event.spawnObject;
+		SpawnPoint point = event.spawnPoint;
+		player.x_pos = point.x_pos;
+		player.y_pos = point.y_pos;
 		return true;	
 	}
 	

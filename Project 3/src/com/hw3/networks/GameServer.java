@@ -23,6 +23,7 @@ import com.hw3.sketcher.Movable;
 import com.hw3.sketcher.Platform;
 import com.hw3.sketcher.Player;
 import com.hw3.sketcher.Renderable;
+import com.hw3.sketcher.SpawnPoint;
 
 import processing.core.PApplet;
 
@@ -73,8 +74,9 @@ class ClientRequestHandler implements Runnable {
 				ManageAction.manage(action, scene, playerMap);
 				if (player == null) {
 					// The player object gets created only during the first iteration.
-					int[] pos = Player.spawnPlayerPosition(sketcher);
-					player = new Player(sketcher, pos[0], pos[1], playerDiameter, Color.getRandomColor());
+					
+					player = new Player(sketcher, 0,0, playerDiameter, Color.getRandomColor());
+					new SpawnPoint(sketcher, player);
 					// add the player to the map with the UUID sent from the client
 					playerMap.put(player.GAME_OBJECT_ID, player);
 				}

@@ -18,6 +18,7 @@ public class Record {
 	public static long recordingStartTime;
 	public static Queue<Event> events = new LinkedList<>();
 	public static Map<String, String> positionMap = new HashMap<>();
+	public static Map<String, GameObject> relationMap = new HashMap<>();
 	
 	public static void addEvent(Event event) {
 		events.add(event);

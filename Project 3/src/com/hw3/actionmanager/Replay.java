@@ -21,7 +21,7 @@ public class Replay {
 
 	public static boolean replayingOn;
 	public static Map<String, String> positionMap = new HashMap<>();
-
+	public static Map<String, GameObject> relationMap = new HashMap<>();
 
 
 	// Map between GUID and the position of the Objects
@@ -46,7 +46,7 @@ public class Replay {
 		for (Player player : players) {
 			if(positionMap.containsKey(player.GAME_OBJECT_ID)) {
 				player.updateGameObject(positionMap.get(player.GAME_OBJECT_ID).split("~"));
-				player.connectedObject = null;
+				player.connectedObject = relationMap.get(player.GAME_OBJECT_ID);
 			}
 		}
 		for (GameObject gameObject : scene) {
@@ -60,6 +60,7 @@ public class Replay {
 	public static void saveBeforeReplayPositions( Collection<GameObject> scene, Collection<Player> players) {
 		for (Player player : players) {
 			positionMap.put(player.GAME_OBJECT_ID, player.toGameObjectString());
+			relationMap.put(player.GAME_OBJECT_ID, player.connectedObject);
 		}
 		for (GameObject gameObject : scene) {
 			if(gameObject instanceof Movable)
@@ -85,7 +86,7 @@ public class Replay {
 		for (Player player : players) {
 			if(Record.positionMap.containsKey(player.GAME_OBJECT_ID)) {
 				player.updateGameObject(Record.positionMap.get(player.GAME_OBJECT_ID).split("~"));
-				player.connectedObject = null;
+				player.connectedObject = Record.relationMap.get(player.GAME_OBJECT_ID);
 			}
 		}
 		for (GameObject gameObject : scene) {

@@ -7,13 +7,15 @@ import com.hw3.actionmanager.Record;
 import com.hw3.actionmanager.Replay;
 import com.hw3.eventManager.Event;
 import com.hw3.eventManager.types.CharacterCollisionEvent;
+import com.hw3.eventManager.types.CharacterDeathEvent;
+import com.hw3.eventManager.types.CharacterSpawnEvent;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
 
 public class Player extends GameObject implements Movable, Renderable, Serializable {
 	private static final long serialVersionUID = 1L;
-	public double[] speed = { 20, 0 };
+	public double[] speed = { 10, 0 };
 	int diameter;
 	float gravity = 0.9f;
 	Color color;
@@ -26,13 +28,13 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		this.y_pos = y;
 		this.diameter = diameter;
 		this.sketcher = sketcher;
-		speed[1] = 20; // this makes the player to reach the ground initially
+		speed[1] = 10; // this makes the player to reach the ground initially
 		this.color = color;
 		this.isAlive = true;
 	}
 
 	public void setMovement(int x, int y) {
-		move_x = x;
+ 		move_x = x;
 		move_y = y;
 	}
 
@@ -127,7 +129,15 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		if (Math.abs(y_pos + diameter / 2 - gameObject.y_pos) <= speed[1] + 0.1 && x_pos >= gameObject.x_pos
 				&& x_pos <= gameObject.x_pos + gameObject.length) {
 			if (gameObject instanceof DeathZone) {
-				teleport();
+				if (Record.isRecording() && !Replay.isReplaying()) {
+					Event deathEvent = new CharacterDeathEvent(this);
+					Record.addEvent(deathEvent);
+				}
+				SpawnPoint spawn = new SpawnPoint(sketcher,this);
+				if (Record.isRecording() && !Replay.isReplaying()) {
+					Event spawnEvent = new CharacterSpawnEvent(this, spawn);
+					Record.addEvent(spawnEvent);
+				}	
 				return false;
 			}
 			landOnObject(gameObject);
@@ -161,23 +171,24 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public void kill() {
 		isAlive = false;
 	}
+	
+	public void setAlive() {
+		isAlive = true;
+	}
+
 
 	public boolean isAlive() {
 		return isAlive;
 	}
 
-	public static int[] spawnPlayerPosition(PApplet sketcher) {
-		int w = (int) sketcher.random((float) (sketcher.width * 0.1), (float) (sketcher.width * 0.9));
-		int h = (int) sketcher.random((float) (sketcher.height * 0.4), (float) (sketcher.height * 0.9));
-		return new int[] { w, h };
-	}
 
-	public void teleport() {
-		int[] pos = spawnPlayerPosition(sketcher);
-		speed[1] = 10;
-		x_pos = pos[0];
-		y_pos = pos[1];
-	}
+
+//	public void teleport() {
+//		int[] pos = spawnPlayerPosition(sketcher);
+//		speed[1] = 10;
+//		x_pos = pos[0];
+//		y_pos = pos[1];
+//	}
 
 	@Override
 	public String toGameObjectString() {
@@ -193,7 +204,6 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		x_pos = Integer.parseInt(vals[2]);
 		y_pos = Integer.parseInt(vals[3]);
 		isAlive = Boolean.parseBoolean(vals[8]);
-
 	}
 
 }
