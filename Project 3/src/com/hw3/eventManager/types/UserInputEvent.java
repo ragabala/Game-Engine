@@ -18,6 +18,7 @@ public class UserInputEvent extends Event {
 		this.pos_x = player.x_pos;
 		this.pos_y = player.y_pos;
 		this.player = player;
+		player.setMovement(x, y);
 	}
 
 }

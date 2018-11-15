@@ -83,7 +83,6 @@ class ClientRequestHandler implements Runnable {
 				if (prev_x != move_x || prev_y != move_y) {
 					ManageAction.addInputEvent(move_x, move_y, player);
 				}
-				player.setMovement(move_x, move_y);
 				prev_x = move_x;
 				prev_y = move_y;
 

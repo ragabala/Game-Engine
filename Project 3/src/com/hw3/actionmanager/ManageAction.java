@@ -24,17 +24,18 @@ public class ManageAction {
 			Clock.unPause();
 		else if (action == 7)
 			Record.stopRecording();
-		
+
 	}
-	
+
 	public static void addInputEvent(int x, int y, Player player) {
-			// if recording is on, we have to add this event
-			// and if the replay is off we add this event to the replay
-			if (Record.isRecording() && !Replay.isReplaying()) {
-				// This action creates a user input type event
-				Event userInput = new UserInputEvent(x, y, player);
-				Record.addEvent(userInput);
-			}
+		// if recording is on, we have to add this event
+		// and if the replay is off we add this event to the replay
+
+		// This action creates a user input type event
+		Event userInput = new UserInputEvent(x, y, player);
+		if (Record.isRecording() && !Replay.isReplaying()) {
+			Record.addEvent(userInput);
+		}
 
 	}
 
