@@ -71,6 +71,7 @@ class ClientReceiver implements Runnable {
 				String[] inputVals = inputObtained.split("~~");
 				for (String gameObjectInput : inputVals) {
 					String[] gameObjectVals = gameObjectInput.split("~");
+					System.out.println(gameObjectInput);
 					String gameGUID = gameObjectVals[1];
 					if (gameObjects.containsKey(gameGUID)) {
 						temp = gameObjects.get(gameGUID);

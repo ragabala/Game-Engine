@@ -1,5 +1,7 @@
 package com.hw4.sketcher;
 
+import java.util.Collection;
+
 import processing.core.PApplet;
 
 public class Enemy extends GameObject implements Movable,Renderable,Shootable{
@@ -16,8 +18,6 @@ public class Enemy extends GameObject implements Movable,Renderable,Shootable{
 	
 	@Override
 	public GameObject shoot() {
-		if(!isAlive) return null; // don't shoot if not alive 
-		
 		// false signify that its a enemy bullet
 		return  new Bullet(this.sketcher, this.x_pos, this.y_pos, false);
 		
@@ -68,12 +68,31 @@ public class Enemy extends GameObject implements Movable,Renderable,Shootable{
 	}
 
 	
+	public void isHit(Collection<GameObject> gameObjects) {
+		// if object is connected
+
+		for (GameObject gameObject : gameObjects) {
+			// If the colliding object is a bullet and it is by the client,
+			// Kill the enemy
+			if (gameObject instanceof Bullet && ((Bullet) gameObject).byPlayer())
+				if (PApplet.dist(x_pos, y_pos, gameObject.x_pos, gameObject.y_pos) < 1) {
+						kill();
+				}
+		}
+	}
+	
+	
+	public void kill() {
+		isAlive = false;
+	}
+	
 	@Override
 	public void updateGameObject(String[] vals) {
 		// TODO Auto-generated method stub
 		x_pos = Integer.parseInt(vals[2]);
 		y_pos = Integer.parseInt(vals[3]);
-
+		boolean isAlive = Boolean.parseBoolean(vals[4]);
+		this.isAlive = isAlive;
 	}
 	
 	@Override

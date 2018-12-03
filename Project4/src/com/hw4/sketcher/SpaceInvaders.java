@@ -78,6 +78,7 @@ public class SpaceInvaders extends GameObject implements Movable, Renderable {
 			for (int j = 0; j < col; j++) {
 				Enemy temp = enemies[i][j];
 				temp.step(x_speed, 0);
+				temp.isHit(scene.values());
 				if (temp.x_pos > 0.9 * sketcher.width || temp.x_pos < 0.1 * sketcher.width)
 					changeDir = true;
 				// Each step should be associated with a shoot function, which happens at a

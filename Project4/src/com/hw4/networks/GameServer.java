@@ -109,14 +109,17 @@ class ClientResponseHandler implements Runnable {
 			while (true) {
 				// send all scene objects and player objects to all clients
 				for (GameObject gameObject : scene.values()) {
-					if (!(gameObject instanceof DeathZone))
-						buffer.append(gameObject.toGameObjectString() + "~~");
+					if (!(gameObject instanceof DeathZone)) {
+						if (gameObject instanceof SpaceInvaders)
+						{
+							((SpaceInvaders)gameObject).addEnemiesToScene(buffer);
+						}
+						else
+							buffer.append(gameObject.toGameObjectString() + "~~");
+					}
 					// If the game Object is of type space Invaders we add the enemies rather than the 
 					// space invaders
-					if (gameObject instanceof SpaceInvaders)
-					{
-						((SpaceInvaders)gameObject).addEnemiesToScene(buffer);
-					}
+
 				}
 				// System.out.println("scene : "+playerMap.values().size());
 				for (Player gameObject : playerMap.values()) {

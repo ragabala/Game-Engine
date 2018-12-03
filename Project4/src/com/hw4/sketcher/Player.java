@@ -16,6 +16,10 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public int dir_x, dir_y;
 	boolean isAlive;
 
+	int score,hits;
+	int maxhits = 10;
+	
+	
 	public Player(PApplet sketcher, int x, int y, int diameter, Color color) {
 		this.x_pos = x;
 		this.y_pos = y;
@@ -88,7 +92,9 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 			// Kill the client
 			if (gameObject instanceof Bullet && !((Bullet) gameObject).byPlayer())
 				if (PApplet.dist(x_pos, y_pos, gameObject.x_pos, gameObject.y_pos) < 1) {
-					isAlive = false;
+					hits++;
+					if(hits >= maxhits)
+						kill();
 				}
 		}
 	}
