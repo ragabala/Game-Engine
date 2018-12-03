@@ -5,8 +5,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import com.hw4.sketcher.Bullet;
 import com.hw4.sketcher.Color;
 import com.hw4.sketcher.DeathZone;
 import com.hw4.sketcher.Floor;
@@ -234,9 +237,17 @@ public class GameServer extends PApplet {
 	// tick is called only when a certain time is elapsed
 	// tick also reduces the delta
 	public void tick() {
-		for (GameObject gameObject : scene.values())
+		
+		Iterator<GameObject> sceneIterator = scene.values().iterator();
+		
+		while(sceneIterator.hasNext()) {
+			GameObject gameObject = sceneIterator.next();
 			if (gameObject instanceof Movable)
-				((Movable) gameObject).step(); // No events attached to the step of scene objects
+				((Movable) gameObject).step(); 
+			// Removing the bullets that are out of the scene
+			if (gameObject instanceof Bullet && ((Bullet)gameObject).isOutOfBounds())
+				scene.remove(gameObject.GAME_OBJECT_ID);
+		}
 		// Player
 		for (Player player : playerMap.values()) {
 			// The events are generated within the player class on step and collision
