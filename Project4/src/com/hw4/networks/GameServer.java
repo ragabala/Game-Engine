@@ -266,7 +266,7 @@ public class GameServer extends PApplet {
 	}
 
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
-		SpaceInvaders spaceInvaders = new SpaceInvaders(this, (int)(width*0.2), 50, noOfEnemyRows, noOfEnemyCols);
+		SpaceInvaders spaceInvaders = new SpaceInvaders(this, scene, (int)(width*0.2), 50, noOfEnemyRows, noOfEnemyCols);
 		// The space invaders added in the scene will be sent to the client 
 		// as distinct enemies and not the entire space invaders object
 		scene.put(spaceInvaders.GAME_OBJECT_ID, spaceInvaders);

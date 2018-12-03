@@ -17,7 +17,10 @@ public class Enemy extends GameObject implements Movable,Renderable,Shootable{
 	@Override
 	public GameObject shoot() {
 		if(!isAlive) return null; // don't shoot if not alive 
-		return null;
+		
+		// false signify that its a enemy bullet
+		return  new Bullet(this.sketcher, this.x_pos, this.y_pos, false);
+		
 	}
 	
 
