@@ -14,7 +14,6 @@ import com.hw3.actionmanager.Record;
 import com.hw3.actionmanager.Replay;
 import com.hw3.eventManager.Event;
 import com.hw3.eventManager.EventListener;
-import com.hw3.eventManager.EventManager;
 import com.hw3.eventManager.HandleEventDispatch;
 import com.hw3.sketcher.Color;
 import com.hw3.sketcher.DeathZone;
@@ -40,6 +39,7 @@ class ClientRequestHandler implements Runnable {
 	Socket socket;
 	PApplet sketcher;
 	int playerDiameter = 20;
+	int prev_x,prev_y;
 
 	public ClientRequestHandler(PApplet sketcher, Socket socket, ConcurrentMap<String, GameObject> scene,
 			ConcurrentMap<String, Player> playerMap) {
@@ -55,38 +55,44 @@ class ClientRequestHandler implements Runnable {
 		// TODO Auto-generated method stub
 		int port = socket.getPort();
 		Player player = null;
-
-		int prev_x = 0, prev_y = 0;
-
 		try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 			// This player object is corresponding to one thread
 			// (i.e) one particular player
 
 			while (true) {
 				String input = inputStream.readUTF();
+				if(input.equals(""))
+					continue;
 				String playerVals[] = input.split("~");
-				int move_x = Integer.parseInt(playerVals[0]);
-				int move_y = Integer.parseInt(playerVals[1]);
-
+				
 				// action is the new parameter that handles the pause/ record / playback
 				// features.
-				int action = Integer.parseInt(playerVals[2]);
+				int pos_x = Integer.parseInt(playerVals[0]);
+				int shoot = Integer.parseInt(playerVals[1]);
+				if (shoot != 0) // If the player has shoot, it has to be added in the scene
+					
+				
+				String playerUUID = playerVals[3];
 				// This will handle the replays, pause, unpause
-				ManageAction.manage(action, scene, playerMap);
+
 				if (player == null) {
 					// The player object gets created only during the first iteration.
 					
 					player = new Player(sketcher, 0,0, playerDiameter, Color.getRandomColor());
-					new SpawnPoint(sketcher, player);
+					player.GAME_OBJECT_ID = playerUUID;
 					// add the player to the map with the UUID sent from the client
 					playerMap.put(player.GAME_OBJECT_ID, player);
+					
 				}
-				if (prev_x != move_x || prev_y != move_y) {
-					EventManager.register(Event.Type.USER_INPUT,move_x, move_y, player);
-				}
-				prev_x = move_x;
-				prev_y = move_y;
-
+				// this is the position corresponding to the player 
+				//which is updated in the client
+				if(pos_x != prev_x || pos_y != prev_y)
+					player.setPos(pos_x, pos_y);
+				
+				prev_x = pos_x;
+				prev_y = pos_y;
+				
+				// The input events are handled by the client 
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -197,7 +203,8 @@ class ClientConnectionHandler implements Runnable {
  */
 public class GameServer extends PApplet {
 
-	static int noOfPlatforms = 5;
+	int noOfPlatforms = 0;
+	int noOfMovingPlatforms = 0;
 	static int width = 800, height = 800;
 	ConcurrentMap<String, GameObject> scene;
 	ConcurrentMap<String, Player> playerMap;
@@ -209,10 +216,12 @@ public class GameServer extends PApplet {
 	 * and two are static Adding Platforms
 	 */
 
-	public GameServer(ConcurrentMap<String, GameObject> scene, ConcurrentMap<String, Player> playerMap) {
+	public GameServer(ConcurrentMap<String, GameObject> scene, ConcurrentMap<String, Player> playerMap, int numberofPlatforms, int numberOfMovingPlatforms) {
 		// TODO Auto-generated constructor stub
 		this.scene = scene;
 		this.playerMap = playerMap;
+		this.noOfPlatforms = numberofPlatforms;
+		this.noOfMovingPlatforms = numberOfMovingPlatforms;
 		// Default tic is at 60 meaning 60 frames in a sec
 	}
 
@@ -288,18 +297,18 @@ public class GameServer extends PApplet {
 	// tick is called only when a certain time is elapsed
 	// tick also reduces the delta
 	public void tick() {
+		long start = System.nanoTime();
 		for (GameObject gameObject : scene.values())
 			if (gameObject instanceof Movable)
 				((Movable) gameObject).step(); // No events attached to the step of scene objects
 		// Player
 		for (Player player : playerMap.values()) {
 			// The events are generated within the player class on step and collision
-			if (Replay.isReplaying())
-				player.step(player.dir_x, player.dir_y);
-			else
-				player.step();
+			// In the distributed model we just do collision events
+			// The user input events are handled by the clients
 			player.resolveCollision(scene.values());
 		}
+		System.out.println("Loop update "+(System.nanoTime() - start));
 	}
 
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
@@ -309,9 +318,9 @@ public class GameServer extends PApplet {
 			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
-			if (i == 1)
+			if (i <= noOfMovingPlatforms && i%2 ==0)
 				temp.setMotion(0, 1);
-			if (i == 1 + (noOfPlatforms / 2))
+			if (i <= noOfMovingPlatforms && i%2 ==1)
 				temp.setMotion(1, 0);
 			scene.put(temp.GAME_OBJECT_ID, temp);
 		}
@@ -326,7 +335,14 @@ public class GameServer extends PApplet {
 		String[] processingArgs = { "MySketch" };
 		ConcurrentMap<String, GameObject> scene = new ConcurrentHashMap<>();
 		ConcurrentMap<String, Player> playerMap = new ConcurrentHashMap<>();
-		GameServer mySketch = new GameServer(scene, playerMap);
+		if(args.length < 2)
+		{
+			System.out.println("Call with <no of platforms> <no of moving platforms>");
+			System.exit(1);
+		}
+		int noOfPlatforms = Integer.parseInt(args[0]);
+		int noOfMovingPlatforms = Integer.parseInt(args[1]);
+		GameServer mySketch = new GameServer(scene, playerMap, noOfPlatforms, noOfMovingPlatforms);
 		PApplet.runSketch(processingArgs, mySketch);
 	}
 }

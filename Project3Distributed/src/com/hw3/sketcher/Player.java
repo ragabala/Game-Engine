@@ -6,7 +6,6 @@ import java.util.Collection;
 import com.hw3.actionmanager.Record;
 import com.hw3.actionmanager.Replay;
 import com.hw3.eventManager.Event;
-import com.hw3.eventManager.EventManager;
 import com.hw3.eventManager.types.CharacterCollisionEvent;
 import com.hw3.eventManager.types.CharacterDeathEvent;
 import com.hw3.eventManager.types.CharacterSpawnEvent;
@@ -21,10 +20,13 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	float gravity = 0.9f;
 	Color color;
 	public transient GameObject connectedObject = null;
-	int move_x, move_y;
+	public int move_x, move_y;
 	public int dir_x, dir_y;
 	boolean isAlive;
-
+	public int clientid; // used for saving sockets to prevent forwarding 
+	// clients through same sockets
+	
+	
 	public Player(PApplet sketcher, int x, int y, int diameter, Color color) {
 		this.x_pos = x;
 		this.y_pos = y;
@@ -36,7 +38,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	}
 
 	public void setMovement(int x, int y) {
-		move_x = x;
+ 		move_x = x;
 		move_y = y;
 	}
 
@@ -44,7 +46,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		dir_x = x;
 		dir_y = y;
 	}
-
+	
 	public void setPos(int x, int y) {
 		x_pos = x;
 		y_pos = y;
@@ -77,7 +79,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 			y_pos = connectedObject.y_pos - diameter / 2;
 		}
 
-		// If the object Jumps when connected
+/*		// If the object Jumps when connected
 		if (y_dir != 0 && connectedObject != null) {
 			// If jumped give it an initial upward speed
 			speed[1] = -20;
@@ -89,7 +91,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 				connectedObject = null;
 				speed[1] = 10;
 			}
-		}
+		}*/
 		wrap();
 	}
 
@@ -114,11 +116,14 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public void landOnObject(GameObject gameObject) {
 		speed[1] = 0;
 		if (gameObject instanceof Movable)
-			x_pos += (((Movable) gameObject).getSpeed())[0];
+			x_pos += (((Movable) gameObject).getSpeed())[0] ;
 		// The below statement makes sure the event gets created only when the object
 		// makes contact for the first time
 		if (connectedObject != gameObject) {
-			EventManager.register(Event.Type.CHARACTER_COLLSION, this, gameObject );
+			if (Record.isRecording() && !Replay.isReplaying()) {
+				Event userInput = new CharacterCollisionEvent(this, gameObject);
+				Record.addEvent(userInput);
+			}
 		}
 		connectedObject = gameObject;
 	}
@@ -128,8 +133,15 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		if (Math.abs(y_pos + diameter / 2 - gameObject.y_pos) <= speed[1] + 0.1 && x_pos >= gameObject.x_pos
 				&& x_pos <= gameObject.x_pos + gameObject.length) {
 			if (gameObject instanceof DeathZone) {
-				EventManager.register(Event.Type.CHARACTER_DEATH, this);
-				EventManager.register(Event.Type.CHARACTER_SPAWN, this, new SpawnPoint(sketcher, this));
+				if (Record.isRecording() && !Replay.isReplaying()) {
+					Event deathEvent = new CharacterDeathEvent(this);
+					Record.addEvent(deathEvent);
+				}
+				SpawnPoint spawn = new SpawnPoint(sketcher,this);
+				if (Record.isRecording() && !Replay.isReplaying()) {
+					Event spawnEvent = new CharacterSpawnEvent(this, spawn);
+					Record.addEvent(spawnEvent);
+				}	
 				return false;
 			}
 			landOnObject(gameObject);
@@ -163,27 +175,35 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public void kill() {
 		isAlive = false;
 	}
-
+	
 	public void setAlive() {
 		isAlive = true;
 	}
+
 
 	public boolean isAlive() {
 		return isAlive;
 	}
 
-	// public void teleport() {
-	// int[] pos = spawnPlayerPosition(sketcher);
-	// speed[1] = 10;
-	// x_pos = pos[0];
-	// y_pos = pos[1];
-	// }
+
+
+//	public void teleport() {
+//		int[] pos = spawnPlayerPosition(sketcher);
+//		speed[1] = 10;
+//		x_pos = pos[0];
+//		y_pos = pos[1];
+//	}
 
 	@Override
 	public String toGameObjectString() {
 		// TODO Auto-generated method stub
+		
+		String connectedObjectUUID = "null";
+		if(connectedObject != null)
+			connectedObjectUUID = connectedObject.GAME_OBJECT_ID;
+		
 		return "PLAYER~" + GAME_OBJECT_ID + "~" + x_pos + "~" + y_pos + "~" + diameter + "~" + color.r + "~" + color.g
-				+ "~" + color.b + "~" + isAlive;
+				+ "~" + color.b + "~" + isAlive+"~"+connectedObjectUUID;
 
 	}
 

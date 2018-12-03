@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Queue;
 
 import com.hw3.eventManager.Event;
-import com.hw3.eventManager.EventManager;
 import com.hw3.eventManager.types.StartRecordingEvent;
 import com.hw3.eventManager.types.StopRecordingEvent;
 import com.hw3.sketcher.GameObject;
@@ -37,7 +36,11 @@ public class Record {
 	public static void stopRecording() {
 		if(!recordingOn)
 			return;
-		EventManager.register(Event.Type.STOP_RECORDING);
+		Event stop = new StopRecordingEvent();
+		recordingOn = false;
+		// setting to default tic
+		Clock.setTic(Clock.DEFAULT_TIC_SIZE);
+		events.add(stop);
 	}
 
 	public static boolean isRecording() {

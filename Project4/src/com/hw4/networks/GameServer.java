@@ -1,4 +1,4 @@
-package com.hw3.networks;
+package com.hw4.networks;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -7,24 +7,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import com.hw3.actionmanager.Clock;
-import com.hw3.actionmanager.ManageAction;
-import com.hw3.actionmanager.Record;
-import com.hw3.actionmanager.Replay;
-import com.hw3.eventManager.Event;
-import com.hw3.eventManager.EventListener;
-import com.hw3.eventManager.EventManager;
-import com.hw3.eventManager.HandleEventDispatch;
-import com.hw3.sketcher.Color;
-import com.hw3.sketcher.DeathZone;
-import com.hw3.sketcher.Floor;
-import com.hw3.sketcher.GameObject;
-import com.hw3.sketcher.Movable;
-import com.hw3.sketcher.Platform;
-import com.hw3.sketcher.Player;
-import com.hw3.sketcher.Renderable;
-import com.hw3.sketcher.SpawnPoint;
+import com.hw4.sketcher.Color;
+import com.hw4.sketcher.DeathZone;
+import com.hw4.sketcher.Floor;
+import com.hw4.sketcher.GameObject;
+import com.hw4.sketcher.Movable;
+import com.hw4.sketcher.Platform;
+import com.hw4.sketcher.Player;
+import com.hw4.sketcher.Renderable;
+import com.hw4.sketcher.SpawnPoint;
 
 import processing.core.PApplet;
 
@@ -55,8 +46,7 @@ class ClientRequestHandler implements Runnable {
 		// TODO Auto-generated method stub
 		int port = socket.getPort();
 		Player player = null;
-
-		int prev_x = 0, prev_y = 0;
+		GameObject bullet = null;
 
 		try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 			// This player object is corresponding to one thread
@@ -66,27 +56,18 @@ class ClientRequestHandler implements Runnable {
 				String input = inputStream.readUTF();
 				String playerVals[] = input.split("~");
 				int move_x = Integer.parseInt(playerVals[0]);
-				int move_y = Integer.parseInt(playerVals[1]);
-
-				// action is the new parameter that handles the pause/ record / playback
-				// features.
-				int action = Integer.parseInt(playerVals[2]);
-				// This will handle the replays, pause, unpause
-				ManageAction.manage(action, scene, playerMap);
+				int shoot = Integer.parseInt(playerVals[1]);
 				if (player == null) {
-					// The player object gets created only during the first iteration.
-					
 					player = new Player(sketcher, 0,0, playerDiameter, Color.getRandomColor());
 					new SpawnPoint(sketcher, player);
 					// add the player to the map with the UUID sent from the client
 					playerMap.put(player.GAME_OBJECT_ID, player);
 				}
-				if (prev_x != move_x || prev_y != move_y) {
-					EventManager.register(Event.Type.USER_INPUT,move_x, move_y, player);
+				player.setMovement(move_x, 0);
+				if(shoot != 0) {
+					bullet = player.shoot();
+					scene.put(bullet.GAME_OBJECT_ID, bullet);
 				}
-				prev_x = move_x;
-				prev_y = move_y;
-
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -202,8 +183,6 @@ public class GameServer extends PApplet {
 	ConcurrentMap<String, GameObject> scene;
 	ConcurrentMap<String, Player> playerMap;
 	boolean flag = true;
-	EventListener eventListener = new HandleEventDispatch();
-
 	/*
 	 * Let us construct 5 platforms of different colors three platforms has to move
 	 * and two are static Adding Platforms
@@ -233,40 +212,7 @@ public class GameServer extends PApplet {
 
 	@Override
 	public void draw() {
-		// Rendering should happen irrespective of tics
-		// Time should be a factor in updating the steps for the player and the platform
-		// clock updates reffered from
-		// https://en.wikibooks.org/wiki/Guide_to_Game_Development/Theory/Game_logic/Setting_up_ticks_and_frames
-		// update Block - Just updates are based on cloc
-		// This will just replay all the events according the the timelines
-		Clock.setCurrentTime();
-		Clock.updateDelta();
-		Clock.setLastToCurrent();
-		if (Replay.isReplaying() && flag) {
-			Clock.setReplayStartTime();
-			flag = false;
-		}
-
-		while (Clock.getdeltaTime() >= Clock.getTimeStep()) {
-			Clock.decrementDelta();
-			if (Record.events.isEmpty()) {
-				Replay.stopReplay(scene.values(), playerMap.values());
-				flag = true;
-			}
-			if (Replay.isReplaying()) {
-				Event headEvent = Record.events.peek();
-				double ticsGame = Clock.getTics(Clock.getReplayTime(), Clock.getSystemTime());
-				if (ticsGame >= headEvent.getTics()) {
-					eventListener.onEvent(headEvent);
-					Record.events.remove();
-				}
-
-			}
-		
-			if (!Clock.isPaused() || Replay.isReplaying())
-				tick();
-
-		}
+		tick();
 		render();
 	}
 
@@ -294,11 +240,8 @@ public class GameServer extends PApplet {
 		// Player
 		for (Player player : playerMap.values()) {
 			// The events are generated within the player class on step and collision
-			if (Replay.isReplaying())
-				player.step(player.dir_x, player.dir_y);
-			else
-				player.step();
-			player.resolveCollision(scene.values());
+			player.step();
+			player.isHit(scene.values());
 		}
 	}
 

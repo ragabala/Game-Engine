@@ -14,7 +14,6 @@ import com.hw3.actionmanager.Record;
 import com.hw3.actionmanager.Replay;
 import com.hw3.eventManager.Event;
 import com.hw3.eventManager.EventListener;
-import com.hw3.eventManager.EventManager;
 import com.hw3.eventManager.HandleEventDispatch;
 import com.hw3.sketcher.Color;
 import com.hw3.sketcher.DeathZone;
@@ -82,8 +81,9 @@ class ClientRequestHandler implements Runnable {
 					playerMap.put(player.GAME_OBJECT_ID, player);
 				}
 				if (prev_x != move_x || prev_y != move_y) {
-					EventManager.register(Event.Type.USER_INPUT,move_x, move_y, player);
+					ManageAction.addInputEvent(move_x, move_y, player);
 				}
+				player.setMovement(move_x, move_y);
 				prev_x = move_x;
 				prev_y = move_y;
 
@@ -197,7 +197,8 @@ class ClientConnectionHandler implements Runnable {
  */
 public class GameServer extends PApplet {
 
-	static int noOfPlatforms = 5;
+	int noOfPlatforms = 0;
+	int noOfMovingPlatforms = 0;
 	static int width = 800, height = 800;
 	ConcurrentMap<String, GameObject> scene;
 	ConcurrentMap<String, Player> playerMap;
@@ -209,10 +210,12 @@ public class GameServer extends PApplet {
 	 * and two are static Adding Platforms
 	 */
 
-	public GameServer(ConcurrentMap<String, GameObject> scene, ConcurrentMap<String, Player> playerMap) {
+	public GameServer(ConcurrentMap<String, GameObject> scene, ConcurrentMap<String, Player> playerMap, int numberofPlatforms, int numberOfMovingPlatforms) {
 		// TODO Auto-generated constructor stub
 		this.scene = scene;
 		this.playerMap = playerMap;
+		this.noOfPlatforms = numberofPlatforms;
+		this.noOfMovingPlatforms = numberOfMovingPlatforms;
 		// Default tic is at 60 meaning 60 frames in a sec
 	}
 
@@ -288,6 +291,7 @@ public class GameServer extends PApplet {
 	// tick is called only when a certain time is elapsed
 	// tick also reduces the delta
 	public void tick() {
+		long start = System.nanoTime();
 		for (GameObject gameObject : scene.values())
 			if (gameObject instanceof Movable)
 				((Movable) gameObject).step(); // No events attached to the step of scene objects
@@ -299,7 +303,9 @@ public class GameServer extends PApplet {
 			else
 				player.step();
 			player.resolveCollision(scene.values());
+			
 		}
+		System.out.println("Loop update "+(System.nanoTime() - start));
 	}
 
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
@@ -309,9 +315,9 @@ public class GameServer extends PApplet {
 			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
-			if (i == 1)
+			if (i < noOfMovingPlatforms && i%2 ==0)
 				temp.setMotion(0, 1);
-			if (i == 1 + (noOfPlatforms / 2))
+			if (i < noOfMovingPlatforms && i%2 ==1)
 				temp.setMotion(1, 0);
 			scene.put(temp.GAME_OBJECT_ID, temp);
 		}
@@ -326,7 +332,14 @@ public class GameServer extends PApplet {
 		String[] processingArgs = { "MySketch" };
 		ConcurrentMap<String, GameObject> scene = new ConcurrentHashMap<>();
 		ConcurrentMap<String, Player> playerMap = new ConcurrentHashMap<>();
-		GameServer mySketch = new GameServer(scene, playerMap);
+		if(args.length < 2)
+		{
+			System.out.println("Call with <no of platforms> <no of moving platforms>");
+			System.exit(1);
+		}
+		int noOfPlatforms = Integer.parseInt(args[0]);
+		int noOfMovingPlatforms = Integer.parseInt(args[1]);
+		GameServer mySketch = new GameServer(scene, playerMap, noOfPlatforms, noOfMovingPlatforms);
 		PApplet.runSketch(processingArgs, mySketch);
 	}
 }
