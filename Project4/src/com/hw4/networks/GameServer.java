@@ -18,6 +18,7 @@ import com.hw4.sketcher.Movable;
 import com.hw4.sketcher.Platform;
 import com.hw4.sketcher.Player;
 import com.hw4.sketcher.Renderable;
+import com.hw4.sketcher.SpaceInvaders;
 import com.hw4.sketcher.SpawnPoint;
 
 import processing.core.PApplet;
@@ -110,6 +111,12 @@ class ClientResponseHandler implements Runnable {
 				for (GameObject gameObject : scene.values()) {
 					if (!(gameObject instanceof DeathZone))
 						buffer.append(gameObject.toGameObjectString() + "~~");
+					// If the game Object is of type space Invaders we add the enemies rather than the 
+					// space invaders
+					if (gameObject instanceof SpaceInvaders)
+					{
+						((SpaceInvaders)gameObject).addEnemiesToScene(buffer);
+					}
 				}
 				// System.out.println("scene : "+playerMap.values().size());
 				for (Player gameObject : playerMap.values()) {
@@ -181,7 +188,9 @@ class ClientConnectionHandler implements Runnable {
  */
 public class GameServer extends PApplet {
 
-	static int noOfPlatforms = 5;
+	static int noOfEnemyRows = 6;
+	static int noOfEnemyCols = 6;
+	
 	static int width = 800, height = 800;
 	ConcurrentMap<String, GameObject> scene;
 	ConcurrentMap<String, Player> playerMap;
@@ -257,23 +266,14 @@ public class GameServer extends PApplet {
 	}
 
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
-		float _temp_x = (float) (width * 0.7) / noOfPlatforms;
-		float _temp_y = (float) (height * 0.7) / noOfPlatforms;
-		for (int i = 1; i <= noOfPlatforms; i++) {
-			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
-			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
-			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
-			if (i == 1)
-				temp.setMotion(0, 1);
-			if (i == 1 + (noOfPlatforms / 2))
-				temp.setMotion(1, 0);
-			scene.put(temp.GAME_OBJECT_ID, temp);
-		}
+		SpaceInvaders spaceInvaders = new SpaceInvaders(this, (int)(width*0.2), 50, noOfEnemyRows, noOfEnemyCols);
+		// The space invaders added in the scene will be sent to the client 
+		// as distinct enemies and not the entire space invaders object
+		scene.put(spaceInvaders.GAME_OBJECT_ID, spaceInvaders);
 		Floor temp = new Floor(this, height, width);
 		scene.put(temp.GAME_OBJECT_ID, temp);
 		DeathZone deathZone = new DeathZone(height, width);
 		scene.put(deathZone.GAME_OBJECT_ID, deathZone);
-
 	}
 
 	public static void main(String[] args) {

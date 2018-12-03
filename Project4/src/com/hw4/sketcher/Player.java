@@ -7,7 +7,7 @@ import java.util.List;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-public class Player extends GameObject implements Movable, Renderable, Serializable {
+public class Player extends GameObject implements Movable, Renderable, Serializable, Shootable {
 	private static final long serialVersionUID = 1L;
 	public double[] speed = { 10, 0 };
 	int side;
@@ -75,6 +75,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 	}
 
+	@Override
 	public GameObject shoot() {
 		return new Bullet(this.sketcher, this.x_pos, this.y_pos, true);
 	}
