@@ -71,9 +71,10 @@ public class Enemy extends GameObject implements Movable,Renderable,Shootable{
 		for (GameObject gameObject : gameObjects) {
 			// If the colliding object is a bullet and it is by the client,
 			// Kill the enemy
-			if (gameObject instanceof Bullet && ((Bullet) gameObject).byPlayer())
+			if (gameObject instanceof Bullet  && ((Bullet) gameObject).active && ((Bullet) gameObject).byPlayer())
 				if (PApplet.dist(x_pos, y_pos, gameObject.x_pos, gameObject.y_pos) <= side) {
 					kill();
+					((Bullet) gameObject).deactivate(); 
 					((Bullet) gameObject).increasePlayerScore();
 				}
 		}

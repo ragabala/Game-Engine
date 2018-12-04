@@ -70,10 +70,13 @@ class ClientRequestHandler implements Runnable {
 					playerMap.put(player.GAME_OBJECT_ID, player);
 				}
 				player.setMovement(move_x, 0);
-				if(shoot != 0) {
+				if(shoot != 0 && player.shootActive && player.isAlive()) {
 					bullet = player.shoot();
+					player.shootActive = false;
 					scene.put(bullet.GAME_OBJECT_ID, bullet);
 				}
+				else if(shoot == 0)
+					player.shootActive = true;
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -130,6 +133,7 @@ class ClientResponseHandler implements Runnable {
 					if(gameObject.clientId == socket.getPort()) // if this is the player of this socket
 					{
 						gameObject.updateScorer(scorer);
+						if(!gameObject.isAlive()) scorer.alive = false;
 						//System.out.println("scorer"+scorer.toGameObjectString());
 						buffer.append(scorer.toGameObjectString() + "~~");
 					}
@@ -201,7 +205,7 @@ class ClientConnectionHandler implements Runnable {
 public class GameServer extends PApplet {
 
 	static int noOfEnemyRows = 6;
-	static int noOfEnemyCols = 6;
+	static int noOfEnemyCols = 10;
 	
 	static int width = 800, height = 800;
 	ConcurrentMap<String, GameObject> scene;

@@ -18,7 +18,7 @@ public class SpaceInvaders extends GameObject implements Movable, Renderable {
 	Enemy[][] enemies;
 	int spacing = 30;
 	int row, col;
-	int x_speed = 10;
+	int x_speed = 3;
 	int y_step = 20;
 	float shoot_probability = 0.001f;
 	ConcurrentMap<String, GameObject> scene;

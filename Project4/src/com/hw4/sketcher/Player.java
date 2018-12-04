@@ -16,6 +16,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	int move_x, move_y;
 	public int dir_x, dir_y;
 	boolean isAlive;
+	public boolean shootActive = true;
 	int score = 0 ,hits = 0;
 	int maxhits = 5;
 	
@@ -81,6 +82,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 	@Override
 	public GameObject shoot() {
+		if(!isAlive) return null;
 		Bullet temp = new Bullet(this.sketcher, this.x_pos, this.y_pos, true);
 		temp.setPlayerRef(this);
 		return temp;
@@ -92,10 +94,11 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		for (GameObject gameObject : gameObjects) {
 			// If the colliding object is a bullet and it is not a bullet by the client,
 			// Kill the client
-			if (gameObject instanceof Bullet && !((Bullet) gameObject).byPlayer())
+			if (gameObject instanceof Enemy || (gameObject instanceof Bullet && ((Bullet) gameObject).active && !((Bullet) gameObject).byPlayer() ))
 			{
 				if (PApplet.dist(x_pos, y_pos, gameObject.x_pos, gameObject.y_pos) <= side) {
 					hits++;
+					((Bullet) gameObject).deactivate();
 					if(hits >= maxhits)
 						kill();
 				}

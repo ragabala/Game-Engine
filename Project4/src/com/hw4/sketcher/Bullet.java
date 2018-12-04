@@ -8,6 +8,7 @@ public class Bullet extends GameObject implements Movable,Renderable {
 	private boolean byPlayer;
 	private int speed = 8;
 	private Player player;
+	boolean active = true;
 	
 	public Bullet(PApplet sketcher, int x_pos, int y_pos, boolean byPlayer) {
 		// TODO Auto-generated constructor stub
@@ -25,6 +26,9 @@ public class Bullet extends GameObject implements Movable,Renderable {
 	@Override
 	public void render() {
 		// TODO Auto-generated method stub
+		
+		if(!active) return;
+		
 		sketcher.rectMode(sketcher.CENTER);
 		sketcher.noStroke();
 		
@@ -53,6 +57,8 @@ public class Bullet extends GameObject implements Movable,Renderable {
 			player.increaseScore();
 			
 	}
+	
+	public void deactivate() {active = false;}
 
 	@Override
 	public void step() {
@@ -60,7 +66,7 @@ public class Bullet extends GameObject implements Movable,Renderable {
 		if(byPlayer()) // it has to go up if its from player
 			y_pos -= speed;
 		else
-			y_pos += speed / 2; // Let it go at a slower pace downwards from enemy
+			y_pos += speed / 3; // Let it go at a slower pace downwards from enemy
 	}
 
 	
