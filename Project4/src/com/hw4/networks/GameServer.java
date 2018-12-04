@@ -18,6 +18,7 @@ import com.hw4.sketcher.Movable;
 import com.hw4.sketcher.Platform;
 import com.hw4.sketcher.Player;
 import com.hw4.sketcher.Renderable;
+import com.hw4.sketcher.Scorer;
 import com.hw4.sketcher.SpaceInvaders;
 import com.hw4.sketcher.SpawnPoint;
 
@@ -63,6 +64,7 @@ class ClientRequestHandler implements Runnable {
 				int shoot = Integer.parseInt(playerVals[1]);
 				if (player == null) {
 					player = new Player(sketcher, 0,0, playerDiameter, Color.getRandomColor());
+					player.clientId = socket.getPort();
 					new SpawnPoint(sketcher, player);
 					// add the player to the map with the UUID sent from the client
 					playerMap.put(player.GAME_OBJECT_ID, player);
@@ -106,6 +108,7 @@ class ClientResponseHandler implements Runnable {
 		int port = socket.getPort();
 		try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
 			StringBuffer buffer = new StringBuffer();
+			Scorer scorer = new Scorer();
 			while (true) {
 				// send all scene objects and player objects to all clients
 				for (GameObject gameObject : scene.values()) {
@@ -124,6 +127,12 @@ class ClientResponseHandler implements Runnable {
 				// System.out.println("scene : "+playerMap.values().size());
 				for (Player gameObject : playerMap.values()) {
 					buffer.append(gameObject.toGameObjectString() + "~~");
+					if(gameObject.clientId == socket.getPort()) // if this is the player of this socket
+					{
+						gameObject.updateScorer(scorer);
+						//System.out.println("scorer"+scorer.toGameObjectString());
+						buffer.append(scorer.toGameObjectString() + "~~");
+					}
 				}
 				outputStream.writeUTF(buffer.toString());
 				buffer.delete(0, buffer.length());
@@ -257,7 +266,7 @@ public class GameServer extends PApplet {
 			if (gameObject instanceof Movable)
 				((Movable) gameObject).step(); 
 			// Removing the bullets that are out of the scene
-			if (gameObject instanceof Bullet && ((Bullet)gameObject).isOutOfBounds())
+			if (gameObject instanceof Bullet && ((Bullet)gameObject).isOutOfBounds(20))
 				scene.remove(gameObject.GAME_OBJECT_ID);
 		}
 		// Player

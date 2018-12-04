@@ -67,6 +67,15 @@ public abstract class GameObject implements Serializable {
 		}
 		
 		
+		else if (vals[0].equals("SCORER")) {
+			int hits = Integer.parseInt(vals[2]);
+			int score = Integer.parseInt(vals[3]);
+			Scorer s =  new Scorer();
+			s.updateScore(hits, score);
+			return s;
+		}
+		
+		
 
 		return null;
 	}

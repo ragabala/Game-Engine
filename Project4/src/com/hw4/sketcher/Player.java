@@ -9,15 +9,15 @@ import processing.core.PConstants;
 
 public class Player extends GameObject implements Movable, Renderable, Serializable, Shootable {
 	private static final long serialVersionUID = 1L;
+	public int clientId ; // used for thread communication
 	public double[] speed = { 10, 0 };
 	int side;
 	Color color;
 	int move_x, move_y;
 	public int dir_x, dir_y;
 	boolean isAlive;
-
-	int score,hits;
-	int maxhits = 10;
+	int score = 0 ,hits = 0;
+	int maxhits = 5;
 	
 	
 	public Player(PApplet sketcher, int x, int y, int diameter, Color color) {
@@ -81,24 +81,32 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 	@Override
 	public GameObject shoot() {
-		return new Bullet(this.sketcher, this.x_pos, this.y_pos, true);
+		Bullet temp = new Bullet(this.sketcher, this.x_pos, this.y_pos, true);
+		temp.setPlayerRef(this);
+		return temp;
 	}
 
 	public void isHit(Collection<GameObject> gameObjects) {
 		// if object is connected
-
+		if(!isAlive) return;
 		for (GameObject gameObject : gameObjects) {
 			// If the colliding object is a bullet and it is not a bullet by the client,
 			// Kill the client
 			if (gameObject instanceof Bullet && !((Bullet) gameObject).byPlayer())
-				if (PApplet.dist(x_pos, y_pos, gameObject.x_pos, gameObject.y_pos) < 1) {
+			{
+				if (PApplet.dist(x_pos, y_pos, gameObject.x_pos, gameObject.y_pos) <= side) {
 					hits++;
 					if(hits >= maxhits)
 						kill();
 				}
+			}
 		}
 	}
 
+	public void updateScorer(Scorer scorer) {
+		scorer.updateScore(hits, score);
+	}
+	
 	@Override
 	public double[] getSpeed() {
 		// TODO Auto-generated method stub
@@ -107,6 +115,10 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 	public void kill() {
 		isAlive = false;
+	}
+	
+	public void increaseScore() {
+		score++;
 	}
 
 	public void setAlive() {
@@ -117,12 +129,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		return isAlive;
 	}
 
-	// public void teleport() {
-	// int[] pos = spawnPlayerPosition(sketcher);
-	// speed[1] = 10;
-	// x_pos = pos[0];
-	// y_pos = pos[1];
-	// }
+
 
 	@Override
 	public String toGameObjectString() {

@@ -7,7 +7,7 @@ public class Bullet extends GameObject implements Movable,Renderable {
 	private static final long serialVersionUID = 1L;
 	private boolean byPlayer;
 	private int speed = 8;
-	
+	private Player player;
 	
 	public Bullet(PApplet sketcher, int x_pos, int y_pos, boolean byPlayer) {
 		// TODO Auto-generated constructor stub
@@ -28,7 +28,7 @@ public class Bullet extends GameObject implements Movable,Renderable {
 		sketcher.rectMode(sketcher.CENTER);
 		sketcher.noStroke();
 		
-        if(byPlayer) {
+        if(byPlayer()) {
             sketcher.fill(255,255,255);
         } else {
             sketcher.fill(255,0,0);
@@ -41,19 +41,31 @@ public class Bullet extends GameObject implements Movable,Renderable {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public void setPlayerRef(Player player)
+	{
+		this.player = player;
+	}
+	
+	public void increasePlayerScore()
+	{
+		if(player != null)
+			player.increaseScore();
+			
+	}
 
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub
-		if(byPlayer) // it has to go up if its from player
+		if(byPlayer()) // it has to go up if its from player
 			y_pos -= speed;
 		else
 			y_pos += speed / 2; // Let it go at a slower pace downwards from enemy
 	}
 
 	
-	public boolean isOutOfBounds() {
-		if(y_pos > sketcher.height || y_pos < 0)
+	public boolean isOutOfBounds(int val) {
+		if(y_pos >= sketcher.height+this.breadth + val || y_pos <= -this.breadth - val)
 			return true;
 		return false;
 	}
@@ -92,4 +104,6 @@ public class Bullet extends GameObject implements Movable,Renderable {
 		x_pos = Integer.parseInt(vals[2]);
 		y_pos = Integer.parseInt(vals[3]);
 	}
+	
+
 }

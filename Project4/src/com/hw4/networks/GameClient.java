@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.hw4.sketcher.Bullet;
 import com.hw4.sketcher.GameObject;
 import com.hw4.sketcher.Renderable;
 
@@ -71,11 +72,15 @@ class ClientReceiver implements Runnable {
 				String[] inputVals = inputObtained.split("~~");
 				for (String gameObjectInput : inputVals) {
 					String[] gameObjectVals = gameObjectInput.split("~");
-					System.out.println(gameObjectInput);
+					//System.out.println(gameObjectInput);
 					String gameGUID = gameObjectVals[1];
 					if (gameObjects.containsKey(gameGUID)) {
 						temp = gameObjects.get(gameGUID);
+						//System.out.println(gameObjectInput);
 						temp.updateGameObject(gameObjectVals);
+						// Removing game objects that are out of screen
+						if(temp instanceof Bullet && ((Bullet)temp).isOutOfBounds(0))
+							gameObjects.remove(temp.GAME_OBJECT_ID);		
 					} else {
 						temp = GameObject.parseGameString(gameObjectVals);
 						temp.setSketcher(sketcher);
