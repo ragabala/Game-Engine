@@ -9,15 +9,13 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.hw4.sketcher.Bullet;
 import com.hw4.sketcher.Color;
-import com.hw4.sketcher.Floor;
+import com.hw4.sketcher.Enemy;
 import com.hw4.sketcher.GameObject;
 import com.hw4.sketcher.Movable;
 import com.hw4.sketcher.Player;
 import com.hw4.sketcher.Renderable;
 import com.hw4.sketcher.Scorer;
-import com.hw4.sketcher.SpaceInvaders;
 import com.hw4.sketcher.SpawnPoint;
 
 import processing.core.PApplet;
@@ -59,7 +57,7 @@ class ClientRequestHandler implements Runnable {
 				String input = inputStream.readUTF();
 				String playerVals[] = input.split("~");
 				int move_x = Integer.parseInt(playerVals[0]);
-				int shoot = Integer.parseInt(playerVals[1]);
+				int move_y = Integer.parseInt(playerVals[1]);
 				if (player == null) {
 					player = new Player(sketcher, 0, 0, playerDiameter, Color.getRandomColor());
 					player.clientId = socket.getPort();
@@ -67,13 +65,7 @@ class ClientRequestHandler implements Runnable {
 					// add the player to the map with the UUID sent from the client
 					playerMap.put(player.GAME_OBJECT_ID, player);
 				}
-				player.setMovement(move_x, 0);
-				if (shoot != 0 && player.shootActive && player.isAlive()) {
-					bullet = player.shoot();
-					player.shootActive = false;
-					scene.put(bullet.GAME_OBJECT_ID, bullet);
-				} else if (shoot == 0)
-					player.shootActive = true;
+				player.setMovement(move_x, move_y);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -112,10 +104,6 @@ class ClientResponseHandler implements Runnable {
 			while (true) {
 				// send all scene objects and player objects to all clients
 				for (GameObject gameObject : scene.values()) {
-
-					if (gameObject instanceof SpaceInvaders) {
-						((SpaceInvaders) gameObject).addEnemiesToScene(buffer);
-					} else
 						buffer.append(gameObject.toGameObjectString() + "~~");
 
 					// If the game Object is of type space Invaders we add the enemies rather than
@@ -266,9 +254,6 @@ public class GameServer extends PApplet {
 			GameObject gameObject = sceneIterator.next();
 			if (gameObject instanceof Movable)
 				((Movable) gameObject).step();
-			// Removing the bullets that are out of the scene
-			if (gameObject instanceof Bullet && ((Bullet) gameObject).isOutOfBounds(20))
-				scene.remove(gameObject.GAME_OBJECT_ID);
 		}
 		// Player
 		for (Player player : playerMap.values()) {
@@ -279,14 +264,11 @@ public class GameServer extends PApplet {
 	}
 
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
-		SpaceInvaders spaceInvaders = new SpaceInvaders(this, scene, (int) (width * 0.2), 50, noOfEnemyRows,
-				noOfEnemyCols);
+		int[] pos = SpawnPoint.getRandomPos(this);
+		GameObject enemy = new Enemy(this, pos[0], pos[1]);
 		// The space invaders added in the scene will be sent to the client
 		// as distinct enemies and not the entire space invaders object
-		scene.put(spaceInvaders.GAME_OBJECT_ID, spaceInvaders);
-		Floor temp = new Floor(this, height, width);
-		scene.put(temp.GAME_OBJECT_ID, temp);
-
+		scene.put(enemy.GAME_OBJECT_ID, enemy);
 	}
 
 	public static void main(String[] args) {

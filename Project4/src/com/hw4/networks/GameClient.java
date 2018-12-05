@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.hw4.sketcher.Bullet;
 import com.hw4.sketcher.GameObject;
 import com.hw4.sketcher.Renderable;
 
@@ -79,8 +78,6 @@ class ClientReceiver implements Runnable {
 						//System.out.println(gameObjectInput);
 						temp.updateGameObject(gameObjectVals);
 						// Removing game objects that are out of screen
-						if(temp instanceof Bullet && ((Bullet)temp).isOutOfBounds(0))
-							gameObjects.remove(temp.GAME_OBJECT_ID);		
 					} else {
 						temp = GameObject.parseGameString(gameObjectVals);
 						temp.setSketcher(sketcher);
@@ -123,7 +120,7 @@ class Game extends PApplet {
 		// The actual player creation happens in the server
 		// Also we are adding a new parameter for adding the user actions
 		// like pause/unpause ; record/unrecord ; replay(various speeds) etc
-		playerString = new StringBuffer("0~0");
+		playerString = new StringBuffer("1~0");
 		Socket socket;
 		try {
 			socket = new Socket("127.0.0.1", 15001);
@@ -163,9 +160,10 @@ class Game extends PApplet {
 			keys[0] = 1;
 		else if (keyCode == LEFT)
 			keys[0] = -1;
-		else if (keyCode == 32)
+		else if (keyCode == UP)
+			keys[1] = -1;
+		else if (keyCode == DOWN)
 			keys[1] = 1;
-		
 	}
 
 	@Override
@@ -175,7 +173,9 @@ class Game extends PApplet {
 			keys[0] = 0;
 		else if (keyCode == LEFT)
 			keys[0] = 0;
-		else if (keyCode == 32)
+		else if (keyCode == UP)
+			keys[1] = 0;
+		else if (keyCode == DOWN)
 			keys[1] = 0;
 
 	}
