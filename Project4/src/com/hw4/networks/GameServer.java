@@ -47,7 +47,6 @@ class ClientRequestHandler implements Runnable {
 		// TODO Auto-generated method stub
 		int port = socket.getPort();
 		Player player = null;
-		GameObject bullet = null;
 
 		try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 			// This player object is corresponding to one thread
@@ -106,14 +105,13 @@ class ClientResponseHandler implements Runnable {
 				for (GameObject gameObject : scene.values()) {
 						buffer.append(gameObject.toGameObjectString() + "~~");
 
-					// If the game Object is of type space Invaders we add the enemies rather than
-					// the
-					// space invaders
-
 				}
 				// System.out.println("scene : "+playerMap.values().size());
 				for (Player gameObject : playerMap.values()) {
-					buffer.append(gameObject.toGameObjectString() + "~~");
+					synchronized (playerMap) {
+						buffer.append(gameObject.toGameObjectString());
+					}
+					
 					if (gameObject.clientId == socket.getPort()) // if this is the player of this socket
 					{
 						gameObject.updateScorer(scorer);
@@ -256,11 +254,14 @@ public class GameServer extends PApplet {
 				((Movable) gameObject).step();
 		}
 		// Player
-		for (Player player : playerMap.values()) {
-			// The events are generated within the player class on step and collision
-			player.step();
-			player.isHit(scene.values());
+		synchronized (playerMap) {
+			for (Player player : playerMap.values()) {
+				// The events are generated within the player class on step and collision
+				player.step();
+				player.isHit(scene.values());
+			}
 		}
+		
 	}
 
 	public void createScene(ConcurrentMap<String, GameObject> scene) {

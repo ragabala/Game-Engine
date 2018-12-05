@@ -76,7 +76,10 @@ class ClientReceiver implements Runnable {
 					if (gameObjects.containsKey(gameGUID)) {
 						temp = gameObjects.get(gameGUID);
 						//System.out.println(gameObjectInput);
-						temp.updateGameObject(gameObjectVals);
+						synchronized (gameObjects) {
+							temp.updateGameObject(gameObjectVals);
+						}
+						
 						// Removing game objects that are out of screen
 					} else {
 						temp = GameObject.parseGameString(gameObjectVals);
@@ -145,11 +148,14 @@ class Game extends PApplet {
 	public void draw() {
 		// TODO Auto-generated method stub
 		background(0);
-		// System.out.println("gameObjects"+gameObjects.size());
-		for (GameObject gameObject : gameObjects.values()) {
-			if (gameObject instanceof Renderable)
-				((Renderable) gameObject).render();
+		synchronized (gameObjects) {
+			// System.out.println("gameObjects"+gameObjects.size());
+			for (GameObject gameObject : gameObjects.values()) {
+				if (gameObject instanceof Renderable)
+					((Renderable) gameObject).render();
+			}			
 		}
+
 		playerString.replace(0, playerString.length(), keys[0] + "~" + keys[1]);
 	}
 

@@ -3,6 +3,7 @@ package com.hw4.sketcher;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import processing.core.PApplet;
@@ -17,8 +18,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	int move_x, move_y;
 	public int dir_x, dir_y;
 	boolean isAlive;
-	List<int[]> body;
-	StringBuilder bodyString;
+	List<Snake> snakeBody;
 	int framerate = 5;
 	int iter = 0;
 
@@ -30,13 +30,11 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		this.side = diameter;
 		speed[0] = diameter;
 		speed[1] = diameter;
-		
 		this.sketcher = sketcher;
 		this.color = color;
 		this.isAlive = true;
-		body = new ArrayList<>();
-		body.add(new int[] { x_pos, y_pos });
-		
+		snakeBody = new ArrayList<>();
+		addBodyPart(x, y);
 	}
 
 	public void setMovement(int x, int y) {
@@ -58,10 +56,9 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// TODO Auto-generated method stub
 		if (!isAlive)
 			return;
-		sketcher.fill(color.r, color.g, color.b);
-		sketcher.rectMode(PConstants.CENTER);
-		sketcher.rect(x_pos, y_pos, side, side);
-
+		for (Snake snake : snakeBody) {
+			snake.render();
+		}
 	}
 
 	@Override
@@ -80,8 +77,14 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// In order to ensure the snake retains its shape on moving
 		// We create a new position at the end
 		// and remove the oldest position by one
-		body.add(new int[] { x_pos, y_pos });
-		body.remove(0);
+		Snake next = snakeBody.get(0);
+		for (int i = 0; i < snakeBody.size() - 1; i++) {
+			Snake prev = snakeBody.get(i);
+			next = snakeBody.get(i+1);
+			prev.x_pos = next.x_pos; prev.y_pos = next.y_pos;
+		}
+		next.x_pos = x_pos;
+		next.y_pos = y_pos;
 	}
 
 	@Override
@@ -118,8 +121,9 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 			// The Snake should not hit any other snakes or itself too
 			if (gameObject instanceof Player) {
-				for (int[] bodyParts : ((Player) gameObject).body) {
-					if (PApplet.dist(x_pos, y_pos, bodyParts[0], bodyParts[1]) <= side) {
+				List<Snake> temp = ((Player) gameObject).snakeBody;
+				for (int i=0;i<temp.size()-1;i++) {
+					if (PApplet.dist(x_pos, y_pos, temp.get(i).x_pos, temp.get(i).y_pos) <= 0.5) {
 						kill();
 					}
 				}
@@ -136,7 +140,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// But this doesn't remove the tail node
 		x_pos += move_x * speed[0];
 		y_pos += move_y * speed[1];
-		body.add(new int[] { x_pos, y_pos });
+		addBodyPart(x_pos, y_pos);
 	}
 
 	public void updateScorer(Scorer scorer) {
@@ -165,32 +169,29 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		return isAlive;
 	}
 	
-	public void addBodyPart(int x, int y) {
+	public  void addBodyPart(int x, int y) {
 		// TODO Auto-generated method stub
-		body.add(new int[] {x, y});
-		bodyString.append(x+"~"+y+"~");
+		snakeBody.add(new Snake(sketcher, x, y,side, color));
 	}
 	
 	public void removeBodyPart() {
-		body.remove(0);
-		int index = bodyString.indexOf("~", bodyString.indexOf("~")+1);
-		bodyString.replace(0, index, "");
+		snakeBody.remove(0);
 	}
 
 	@Override
 	public String toGameObjectString() {
 		// TODO Auto-generated method stub
-		return "PLAYER~" + GAME_OBJECT_ID + "~" +body.size()+"~"+ x_pos + "~" + y_pos + "~" + side + "~" + color.r + "~" + color.g + "~"
-				+ color.b + "~" + isAlive;
-
+		StringBuilder sb = new StringBuilder();
+		for (Snake snake : snakeBody) {
+			sb.append(snake.toGameObjectString()+"~~");
+		}
+		return sb.toString();
 	}
 
 	@Override
 	public void updateGameObject(String[] vals) {
 		// TODO Auto-generated method stub
-		x_pos = Integer.parseInt(vals[2]);
-		y_pos = Integer.parseInt(vals[3]);
-		isAlive = Boolean.parseBoolean(vals[vals.length - 1]);
+		// This won't be updated since the Client only gets the Snake String
 	}
 
 }

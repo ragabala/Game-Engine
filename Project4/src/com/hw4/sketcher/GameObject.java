@@ -1,6 +1,8 @@
 package com.hw4.sketcher;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import processing.core.PApplet;
@@ -38,6 +40,17 @@ public abstract class GameObject implements Serializable {
 			return new Player(null, x_pos, y_pos, diameter, new Color(r, g, b));
 
 		}  
+		
+		else if (vals[0].equals("SNAKE")) {
+			int x_pos = Integer.parseInt(vals[2]);
+			int y_pos = Integer.parseInt(vals[3]);
+			int diameter = Integer.parseInt(vals[4]);
+			int r = Integer.parseInt(vals[5]);
+			int g = Integer.parseInt(vals[6]);
+			int b = Integer.parseInt(vals[7]);
+			return new Snake(null, x_pos, y_pos, diameter, new Color(r, g, b));
+		} 
+		
 		
 		
 		else if (vals[0].equals("ENEMY")) {
