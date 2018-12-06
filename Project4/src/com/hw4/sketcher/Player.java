@@ -55,8 +55,6 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	@Override
 	public void render() {
 		// TODO Auto-generated method stub
-		if (!isAlive)
-			return;
 		for (Snake snake : snakeBody) {
 			snake.render();
 		}
@@ -91,6 +89,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub
+		if(!isAlive) return;
 		step(move_x, move_y);
 	}
 
@@ -161,9 +160,6 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 	public void kill() {
 		isAlive = false;
-		for (Snake snake : snakeBody) {
-			snake.isAlive = false;
-		}
 	}
 
 	public void increaseScore() {
