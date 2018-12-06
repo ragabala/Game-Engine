@@ -2,6 +2,8 @@ package com.hw4.sketcher;
 
 import java.util.Collection;
 
+import com.hw4.scriptmanager.ScriptManager;
+
 import processing.core.PApplet;
 
 public class Enemy extends GameObject implements Renderable{
@@ -26,7 +28,9 @@ public class Enemy extends GameObject implements Renderable{
 		// TODO Auto-generated method stub
 		if(!isAlive) return; // don't render if not alive 
 		sketcher.rectMode(sketcher.CENTER);
-		sketcher.fill(255,255,255);
+		ScriptManager.loadScript("setFoodColor.js");
+		ScriptManager.executeScript(sketcher);
+		
 		sketcher.rect(x_pos, y_pos, side, side);
 	}
 	

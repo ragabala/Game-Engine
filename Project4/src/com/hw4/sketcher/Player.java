@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.hw4.scriptmanager.ScriptManager;
+
 import processing.core.PApplet;
 
 public class Player extends GameObject implements Movable, Renderable, Serializable {
@@ -89,6 +91,9 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub
+		ScriptManager.loadScript("setDynamicPlayerSpeed.js");
+		ScriptManager.bindArgument("game_object", this);
+		ScriptManager.executeScript(side);		
 		if(!isAlive) return;
 		step(move_x, move_y);
 	}
