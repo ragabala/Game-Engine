@@ -289,11 +289,16 @@ public class GameServer extends PApplet {
 	// tick is called only when a certain time is elapsed
 	// tick also reduces the delta
 	public void tick() {
+		
+		ScriptManager.loadScript("setDynamicPlayerSpeed.js");
+		
 		for (GameObject gameObject : scene.values())
 			if (gameObject instanceof Movable)
 				((Movable) gameObject).step(); // No events attached to the step of scene objects
 		// Player
 		for (Player player : playerMap.values()) {
+			ScriptManager.bindArgument("game_object", player);
+			ScriptManager.executeScript();
 			// The events are generated within the player class on step and collision
 			if (Replay.isReplaying())
 				player.step(player.dir_x, player.dir_y);
