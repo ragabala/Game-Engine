@@ -3,6 +3,8 @@ package com.hw4.sketcher;
 import java.io.Serializable;
 import java.util.Collection;
 
+import com.hw4.scriptmanager.ScriptManager;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 
@@ -16,8 +18,8 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public int dir_x, dir_y;
 	boolean isAlive;
 	public boolean shootActive = true;
-	int score = 0, hits = 0;
-	int maxhits = 5;
+	public int score = 0, hits = 0;
+	public int maxhits = 5;
 
 	public Player(PApplet sketcher, int x, int y, int diameter, Color color) {
 		this.x_pos = x;
@@ -63,6 +65,10 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub
+		ScriptManager.loadScript("hackPlayerProperties.js");
+		ScriptManager.bindArgument("game_object", this);
+		ScriptManager.executeScript();
+		
 		step(move_x, move_y);
 	}
 
