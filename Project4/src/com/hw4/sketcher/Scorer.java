@@ -5,6 +5,8 @@ public class Scorer extends GameObject implements Renderable {
 	private static final long serialVersionUID = 1L;
 	int hits, score;
 	public boolean alive;
+	public boolean win;
+	public static int winPoints = 60;
 	String message = "";
 
 	public Scorer() {
@@ -34,8 +36,10 @@ public class Scorer extends GameObject implements Renderable {
 		hits = Integer.parseInt(vals[2]);
 		score = Integer.parseInt(vals[3]);
 		alive = Boolean.parseBoolean(vals[4]);
-		
-		if(alive)
+
+		if(score == winPoints)
+			message = "Score : " + score + " Hits : " + hits+ "\n   WIN !!!";
+		else if(alive)
 			message = "Score : " + score + " Hits : " + hits;
 		else
 			message = "Score : " + score + " Hits : " + hits+ "\n   GAME OVER !!!";

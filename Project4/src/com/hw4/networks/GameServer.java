@@ -50,7 +50,7 @@ class ClientRequestHandler implements Runnable {
 		int port = socket.getPort();
 		Player player = null;
 		GameObject bullet = null;
-
+		SpaceInvaders.alive = true;
 		try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 			// This player object is corresponding to one thread
 			// (i.e) one particular player

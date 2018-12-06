@@ -22,6 +22,7 @@ public class SpaceInvaders extends GameObject implements Movable, Renderable {
 	int y_step = 20;
 	float shoot_probability = 0.001f;
 	ConcurrentMap<String, GameObject> scene;
+	public static boolean alive = false;
 
 	public SpaceInvaders(PApplet sketcher, ConcurrentMap<String, GameObject> scene, int x_pos, int y_pos, int row,
 			int col) {
@@ -32,7 +33,6 @@ public class SpaceInvaders extends GameObject implements Movable, Renderable {
 		this.col = col;
 		this.sketcher = sketcher;
 		enemies = new Enemy[row][col];
-		
 		this.scene = scene;
 		for (int i = 0; i < row; i++) {
 			for (int j = 0; j < col; j++) {
@@ -40,7 +40,7 @@ public class SpaceInvaders extends GameObject implements Movable, Renderable {
 				enemies[i][j] = temp;
 			}
 		}
-
+		
 	}
 
 	@Override
@@ -73,6 +73,8 @@ public class SpaceInvaders extends GameObject implements Movable, Renderable {
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub
+		if(!alive) return;
+		
 		boolean changeDir = false;
 		for (int i = 0; i < row; i++) {
 			for (int j = 0; j < col; j++) {

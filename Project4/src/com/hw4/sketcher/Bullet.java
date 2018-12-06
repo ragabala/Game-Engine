@@ -62,6 +62,7 @@ public class Bullet extends GameObject implements Movable,Renderable {
 
 	@Override
 	public void step() {
+		if(!active) return;
 		// TODO Auto-generated method stub
 		if(byPlayer()) // it has to go up if its from player
 			y_pos -= speed;
@@ -101,7 +102,7 @@ public class Bullet extends GameObject implements Movable,Renderable {
 	@Override
 	public String toGameObjectString() {
 		// TODO Auto-generated method stub
-		return "BULLET~" + GAME_OBJECT_ID + "~" + x_pos + "~" + y_pos + "~" + byPlayer;
+		return "BULLET~" + GAME_OBJECT_ID + "~" + x_pos + "~" + y_pos + "~" + byPlayer+"~"+active;
 	}
 
 	@Override
@@ -109,6 +110,7 @@ public class Bullet extends GameObject implements Movable,Renderable {
 		// TODO Auto-generated method stub
 		x_pos = Integer.parseInt(vals[2]);
 		y_pos = Integer.parseInt(vals[3]);
+		active = Boolean.parseBoolean(vals[5]);
 	}
 	
 

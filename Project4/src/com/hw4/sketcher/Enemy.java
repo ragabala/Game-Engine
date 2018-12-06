@@ -6,6 +6,7 @@ import processing.core.PApplet;
 
 public class Enemy extends GameObject implements Movable,Renderable,Shootable{
 
+	private static final long serialVersionUID = 1L;
 	int side = 10;
 	boolean isAlive = true;
 	
@@ -67,11 +68,11 @@ public class Enemy extends GameObject implements Movable,Renderable,Shootable{
 	
 	public void isHit(Collection<GameObject> gameObjects) {
 		// if object is connected
-
+		if(!isAlive) return;
 		for (GameObject gameObject : gameObjects) {
 			// If the colliding object is a bullet and it is by the client,
 			// Kill the enemy
-			if (gameObject instanceof Bullet  && ((Bullet) gameObject).active && ((Bullet) gameObject).byPlayer())
+			if (gameObject instanceof Bullet && ((Bullet) gameObject).active && ((Bullet) gameObject).byPlayer())
 				if (PApplet.dist(x_pos, y_pos, gameObject.x_pos, gameObject.y_pos) <= side) {
 					kill();
 					((Bullet) gameObject).deactivate(); 
