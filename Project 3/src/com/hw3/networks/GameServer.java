@@ -16,6 +16,7 @@ import com.hw3.eventManager.Event;
 import com.hw3.eventManager.EventListener;
 import com.hw3.eventManager.EventManager;
 import com.hw3.eventManager.HandleEventDispatch;
+import com.hw3.scriptmanager.ScriptManager;
 import com.hw3.sketcher.Color;
 import com.hw3.sketcher.DeathZone;
 import com.hw3.sketcher.Floor;
@@ -305,14 +306,13 @@ public class GameServer extends PApplet {
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
 		float _temp_x = (float) (width * 0.7) / noOfPlatforms;
 		float _temp_y = (float) (height * 0.7) / noOfPlatforms;
+		ScriptManager.loadScript("setPlatformMotion.js");
 		for (int i = 1; i <= noOfPlatforms; i++) {
 			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
 			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
 			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
-			if (i == 1)
-				temp.setMotion(0, 1);
-			if (i == 1 + (noOfPlatforms / 2))
-				temp.setMotion(1, 0);
+			ScriptManager.bindArgument("game_object", temp);
+			ScriptManager.executeScript(i, noOfPlatforms);
 			scene.put(temp.GAME_OBJECT_ID, temp);
 		}
 		Floor temp = new Floor(this, height, width);
