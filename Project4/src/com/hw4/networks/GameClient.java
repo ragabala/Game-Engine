@@ -123,7 +123,7 @@ class Game extends PApplet {
 		// The actual player creation happens in the server
 		// Also we are adding a new parameter for adding the user actions
 		// like pause/unpause ; record/unrecord ; replay(various speeds) etc
-		playerString = new StringBuffer("1~0");
+		playerString = new StringBuffer("0~0");
 		Socket socket;
 		try {
 			socket = new Socket("127.0.0.1", 15001);

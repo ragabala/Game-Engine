@@ -6,7 +6,11 @@ import processing.core.PApplet;
 
 public class Enemy extends GameObject implements Renderable{
 
-	int side = 10;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	int side = 20;
 	boolean isAlive = true;
 	
 	public Enemy(PApplet sketcher, int x_pos, int y_pos) {

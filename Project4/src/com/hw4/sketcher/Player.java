@@ -3,11 +3,9 @@ package com.hw4.sketcher;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import processing.core.PApplet;
-import processing.core.PConstants;
 
 public class Player extends GameObject implements Movable, Renderable, Serializable {
 	private static final long serialVersionUID = 1L;
@@ -17,7 +15,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	Color color;
 	int move_x, move_y;
 	public int dir_x, dir_y;
-	boolean isAlive;
+	Boolean isAlive;
 	List<Snake> snakeBody;
 	int framerate = 5;
 	int iter = 0;
@@ -41,8 +39,11 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// Only change directions between horizontal and vertical
 			
 		if (x != 0 || y !=0) {
-			move_x = x;
-			move_y = y;
+			if(x != -move_x)
+				move_x = x;
+			
+			if(y != -move_y)
+				move_y = y;
 			}
 	}
 
@@ -105,7 +106,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 	}
 
-	public void isHit(Collection<GameObject> gameObjects) {
+	public void isHit(Collection<GameObject> gameObjects, Collection<Player> players) {
 		// if object is connected
 		if (!isAlive)
 			return;
@@ -114,25 +115,30 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 			// Kill the client
 			if (gameObject instanceof Enemy) {
 				if (PApplet.dist(x_pos, y_pos, gameObject.x_pos, gameObject.y_pos) <= side) {
+					int[] pos = SpawnPoint.getRandomPos(sketcher);
+					gameObject.x_pos = pos[0];
+					gameObject.y_pos = pos[1];
 					grow();
 					increaseScore();
 				}
 			}
-
-			// The Snake should not hit any other snakes or itself too
-			if (gameObject instanceof Player) {
-				List<Snake> temp = ((Player) gameObject).snakeBody;
-				for (int i=0;i<temp.size()-1;i++) {
-					if (PApplet.dist(x_pos, y_pos, temp.get(i).x_pos, temp.get(i).y_pos) <= 0.5) {
-						kill();
-					}
-				}
-			}
-
-			if (x_pos > sketcher.width || x_pos < 0 || y_pos > sketcher.height || y_pos < 0)
-				kill();
+			
 
 		}
+		
+		// The Snake should not hit any other snakes or itself too
+		for (Player gameObject : players) {
+			List<Snake> temp = gameObject.snakeBody;
+			for (int i=0;i<temp.size()-1;i++) {
+				if (PApplet.dist(x_pos, y_pos, temp.get(i).x_pos, temp.get(i).y_pos) <= 0.1) {
+					kill();
+				}
+			}
+		}
+		
+
+		if (x_pos > sketcher.width || x_pos < 0 || y_pos > sketcher.height || y_pos < 0)
+			kill();
 	}
 
 	public void grow() {
@@ -155,6 +161,9 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 	public void kill() {
 		isAlive = false;
+		for (Snake snake : snakeBody) {
+			snake.isAlive = false;
+		}
 	}
 
 	public void increaseScore() {

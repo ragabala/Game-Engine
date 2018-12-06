@@ -6,7 +6,7 @@ public class Snake extends GameObject implements Movable, Renderable {
 
 	int side;
 	Color color;
-	boolean isAlive;
+	boolean isAlive = true;
 	public Snake(PApplet skecher,int x, int y, int side,Color color) {
 		// TODO Auto-generated constructor stub
 		this.sketcher = skecher;
@@ -14,12 +14,13 @@ public class Snake extends GameObject implements Movable, Renderable {
 		this.y_pos = y;
 		this.side = side;
 		this.color = color;
-		isAlive = true;
+
 	}
 	
 	@Override
 	public void render() {
 		// TODO Auto-generated method stub
+		if(!isAlive) return;
 		sketcher.fill(color.r, color.g,color.b);
 		sketcher.rect(x_pos,y_pos, side, side);
 	}

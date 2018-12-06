@@ -258,7 +258,8 @@ public class GameServer extends PApplet {
 			for (Player player : playerMap.values()) {
 				// The events are generated within the player class on step and collision
 				player.step();
-				player.isHit(scene.values());
+				player.isHit(scene.values(), playerMap.values());
+				
 			}
 		}
 		
