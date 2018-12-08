@@ -5,16 +5,19 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import com.hw4.sketcher.Bullet;
 import com.hw4.sketcher.Color;
-import com.hw4.sketcher.DeathZone;
 import com.hw4.sketcher.Floor;
 import com.hw4.sketcher.GameObject;
 import com.hw4.sketcher.Movable;
-import com.hw4.sketcher.Platform;
 import com.hw4.sketcher.Player;
 import com.hw4.sketcher.Renderable;
+import com.hw4.sketcher.Scorer;
+import com.hw4.sketcher.SpaceInvaders;
 import com.hw4.sketcher.SpawnPoint;
 
 import processing.core.PApplet;
@@ -47,7 +50,7 @@ class ClientRequestHandler implements Runnable {
 		int port = socket.getPort();
 		Player player = null;
 		GameObject bullet = null;
-
+		SpaceInvaders.alive = true;
 		try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 			// This player object is corresponding to one thread
 			// (i.e) one particular player
@@ -58,16 +61,19 @@ class ClientRequestHandler implements Runnable {
 				int move_x = Integer.parseInt(playerVals[0]);
 				int shoot = Integer.parseInt(playerVals[1]);
 				if (player == null) {
-					player = new Player(sketcher, 0,0, playerDiameter, Color.getRandomColor());
+					player = new Player(sketcher, 0, 0, playerDiameter, Color.getRandomColor());
+					player.clientId = socket.getPort();
 					new SpawnPoint(sketcher, player);
 					// add the player to the map with the UUID sent from the client
 					playerMap.put(player.GAME_OBJECT_ID, player);
 				}
 				player.setMovement(move_x, 0);
-				if(shoot != 0) {
+				if (shoot != 0 && player.shootActive && player.isAlive()) {
 					bullet = player.shoot();
+					player.shootActive = false;
 					scene.put(bullet.GAME_OBJECT_ID, bullet);
-				}
+				} else if (shoot == 0)
+					player.shootActive = true;
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -102,15 +108,32 @@ class ClientResponseHandler implements Runnable {
 		int port = socket.getPort();
 		try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
 			StringBuffer buffer = new StringBuffer();
+			Scorer scorer = new Scorer();
 			while (true) {
 				// send all scene objects and player objects to all clients
 				for (GameObject gameObject : scene.values()) {
-					if (!(gameObject instanceof DeathZone))
+
+					if (gameObject instanceof SpaceInvaders) {
+						((SpaceInvaders) gameObject).addEnemiesToScene(buffer);
+					} else
 						buffer.append(gameObject.toGameObjectString() + "~~");
+
+					// If the game Object is of type space Invaders we add the enemies rather than
+					// the
+					// space invaders
+
 				}
 				// System.out.println("scene : "+playerMap.values().size());
 				for (Player gameObject : playerMap.values()) {
 					buffer.append(gameObject.toGameObjectString() + "~~");
+					if (gameObject.clientId == socket.getPort()) // if this is the player of this socket
+					{
+						gameObject.updateScorer(scorer);
+						if (!gameObject.isAlive())
+							scorer.alive = false;
+						// System.out.println("scorer"+scorer.toGameObjectString());
+						buffer.append(scorer.toGameObjectString() + "~~");
+					}
 				}
 				outputStream.writeUTF(buffer.toString());
 				buffer.delete(0, buffer.length());
@@ -178,7 +201,9 @@ class ClientConnectionHandler implements Runnable {
  */
 public class GameServer extends PApplet {
 
-	static int noOfPlatforms = 5;
+	static int noOfEnemyRows = 6;
+	static int noOfEnemyCols = 10;
+
 	static int width = 800, height = 800;
 	ConcurrentMap<String, GameObject> scene;
 	ConcurrentMap<String, Player> playerMap;
@@ -234,9 +259,17 @@ public class GameServer extends PApplet {
 	// tick is called only when a certain time is elapsed
 	// tick also reduces the delta
 	public void tick() {
-		for (GameObject gameObject : scene.values())
+
+		Iterator<GameObject> sceneIterator = scene.values().iterator();
+
+		while (sceneIterator.hasNext()) {
+			GameObject gameObject = sceneIterator.next();
 			if (gameObject instanceof Movable)
-				((Movable) gameObject).step(); // No events attached to the step of scene objects
+				((Movable) gameObject).step();
+			// Removing the bullets that are out of the scene
+			if (gameObject instanceof Bullet && ((Bullet) gameObject).isOutOfBounds(20))
+				scene.remove(gameObject.GAME_OBJECT_ID);
+		}
 		// Player
 		for (Player player : playerMap.values()) {
 			// The events are generated within the player class on step and collision
@@ -246,22 +279,13 @@ public class GameServer extends PApplet {
 	}
 
 	public void createScene(ConcurrentMap<String, GameObject> scene) {
-		float _temp_x = (float) (width * 0.7) / noOfPlatforms;
-		float _temp_y = (float) (height * 0.7) / noOfPlatforms;
-		for (int i = 1; i <= noOfPlatforms; i++) {
-			int x_pos = (int) random(_temp_x * i, _temp_x * (i + 1));
-			int y_pos = (int) random(_temp_y * i, _temp_y * (i + 1));
-			Platform temp = new Platform(this, x_pos, y_pos, 60, 10, Color.getRandomColor());
-			if (i == 1)
-				temp.setMotion(0, 1);
-			if (i == 1 + (noOfPlatforms / 2))
-				temp.setMotion(1, 0);
-			scene.put(temp.GAME_OBJECT_ID, temp);
-		}
+		SpaceInvaders spaceInvaders = new SpaceInvaders(this, scene, (int) (width * 0.2), 50, noOfEnemyRows,
+				noOfEnemyCols);
+		// The space invaders added in the scene will be sent to the client
+		// as distinct enemies and not the entire space invaders object
+		scene.put(spaceInvaders.GAME_OBJECT_ID, spaceInvaders);
 		Floor temp = new Floor(this, height, width);
 		scene.put(temp.GAME_OBJECT_ID, temp);
-		DeathZone deathZone = new DeathZone(height, width);
-		scene.put(deathZone.GAME_OBJECT_ID, deathZone);
 
 	}
 

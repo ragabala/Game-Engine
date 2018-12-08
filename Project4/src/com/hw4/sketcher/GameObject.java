@@ -60,6 +60,22 @@ public abstract class GameObject implements Serializable {
 			return new Bullet(null, x_pos, y_pos, byPlayer);
 		}
 		
+		else if (vals[0].equals("ENEMY")) {
+			int x_pos = Integer.parseInt(vals[2]);
+			int y_pos = Integer.parseInt(vals[3]);
+			return new Enemy(null, x_pos, y_pos);
+		}
+		
+		
+		else if (vals[0].equals("SCORER")) {
+			int hits = Integer.parseInt(vals[2]);
+			int score = Integer.parseInt(vals[3]);
+			Scorer s =  new Scorer();
+			s.updateScore(hits, score);
+			return s;
+		}
+		
+		
 
 		return null;
 	}

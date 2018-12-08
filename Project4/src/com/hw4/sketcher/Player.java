@@ -2,19 +2,24 @@ package com.hw4.sketcher;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
+
+import com.hw4.scriptmanager.ScriptManager;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-public class Player extends GameObject implements Movable, Renderable, Serializable {
+public class Player extends GameObject implements Movable, Renderable, Serializable, Shootable {
 	private static final long serialVersionUID = 1L;
+	public int clientId; // used for thread communication
 	public double[] speed = { 10, 0 };
 	int side;
 	Color color;
 	int move_x, move_y;
 	public int dir_x, dir_y;
 	boolean isAlive;
+	public boolean shootActive = true;
+	public int score = 0, hits = 0;
+	public int maxhits = 5;
 
 	public Player(PApplet sketcher, int x, int y, int diameter, Color color) {
 		this.x_pos = x;
@@ -31,7 +36,6 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		move_y = y;
 	}
 
-
 	public void setPos(int x, int y) {
 		x_pos = x;
 		y_pos = y;
@@ -42,6 +46,7 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		// TODO Auto-generated method stub
 		if (!isAlive)
 			return;
+		sketcher.stroke(255,255,255);
 		sketcher.fill(color.r, color.g, color.b);
 		sketcher.rectMode(PConstants.CENTER);
 		sketcher.rect(x_pos, y_pos, side, side);
@@ -60,6 +65,10 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub
+		ScriptManager.loadScript("hackPlayerProperties.js");
+		ScriptManager.bindArgument("game_object", this);
+		ScriptManager.executeScript();
+		
 		step(move_x, move_y);
 	}
 
@@ -75,21 +84,50 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 
 	}
 
+	@Override
 	public GameObject shoot() {
-		return new Bullet(this.sketcher, this.x_pos, this.y_pos, true);
+		if (!isAlive)
+			return null;
+		Bullet temp = new Bullet(this.sketcher, this.x_pos, this.y_pos, true);
+		temp.setPlayerRef(this);
+		return temp;
 	}
 
 	public void isHit(Collection<GameObject> gameObjects) {
 		// if object is connected
-
+		if (!isAlive)
+			return;
 		for (GameObject gameObject : gameObjects) {
+
+			if (gameObject instanceof SpaceInvaders) {
+				Enemy[][] temp = ((SpaceInvaders) gameObject).enemies;
+				for (int i = 0; i < temp.length; i++) {
+					for (int j = 0; j < temp[0].length; j++) {
+						if (temp[i][j].isAlive) {
+							if (PApplet.dist(x_pos, y_pos, temp[i][j].x_pos, temp[i][j].y_pos) <= side) {
+								kill();
+							}
+						}
+					}
+				}
+			}
+
 			// If the colliding object is a bullet and it is not a bullet by the client,
 			// Kill the client
-			if (gameObject instanceof Bullet && !((Bullet) gameObject).byPlayer())
-				if (PApplet.dist(x_pos, y_pos, gameObject.x_pos, gameObject.y_pos) < 1) {
-					isAlive = false;
+			else if ((gameObject instanceof Bullet && ((Bullet) gameObject).active
+					&& !((Bullet) gameObject).byPlayer())) {
+				if (PApplet.dist(x_pos, y_pos, gameObject.x_pos, gameObject.y_pos) <= side) {
+					hits++;
+					((Bullet) gameObject).deactivate();
+					if (hits >= maxhits)
+						kill();
 				}
+			}
 		}
+	}
+
+	public void updateScorer(Scorer scorer) {
+		scorer.updateScore(hits, score);
 	}
 
 	@Override
@@ -102,6 +140,10 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 		isAlive = false;
 	}
 
+	public void increaseScore() {
+		score++;
+	}
+
 	public void setAlive() {
 		isAlive = true;
 	}
@@ -109,13 +151,6 @@ public class Player extends GameObject implements Movable, Renderable, Serializa
 	public boolean isAlive() {
 		return isAlive;
 	}
-
-	// public void teleport() {
-	// int[] pos = spawnPlayerPosition(sketcher);
-	// speed[1] = 10;
-	// x_pos = pos[0];
-	// y_pos = pos[1];
-	// }
 
 	@Override
 	public String toGameObjectString() {
